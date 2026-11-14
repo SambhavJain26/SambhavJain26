@@ -6,6 +6,8 @@ Generates (light + dark for each):
   assets/header-*.svg         animated header in the jainsambhav.com style
   assets/cards/*-*.svg        selected-work cards
   assets/more-work-*.svg      "More work" link
+  assets/catch-button-*.svg   Bug Hunt "Catch a bug" button
+  assets/play-bug-hunt-*.svg  jump button under the header
   game/art/<bug>-*.svg        Bugdex tiles (+ "?" silhouettes for undiscovered bugs)
 
 Fonts: Instrument Serif (SIL Open Font License, see tools/fonts/OFL.txt) is
@@ -93,7 +95,7 @@ REDUCED_MOTION = "@media (prefers-reduced-motion: reduce){*{animation:none!impor
 # --------------------------------------------------------------------------- header
 def header(theme: str) -> str:
     t = THEMES[theme]
-    W, H = 1200, 380
+    W, H = 1200, 304
     name_regular, name_italic = "Sambhav ", "Jain."
     faces = serif_faces(regular_text=name_regular + "sj.", italic_text=name_italic)
     return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-label="Sambhav Jain. AI and software engineering. Automation and operations.">
@@ -102,7 +104,7 @@ def header(theme: str) -> str:
 <style>
 {faces}
 .label{{font:600 13px {SANS};letter-spacing:3.4px;fill:{t['muted']}}}
-.name{{font-family:{SERIF};font-size:124px;fill:{t['ink']}}}
+.name{{font-family:{SERIF};font-size:112px;fill:{t['ink']}}}
 .it{{font-family:{SERIF_IT};font-style:italic}}
 .mono{{font-family:{SERIF};font-size:40px;fill:{t['ink']}}}
 .pill{{font:500 14px {SANS};fill:{t['ink']}}}
@@ -129,27 +131,27 @@ def header(theme: str) -> str:
 </g>
 <rect x=".75" y=".75" width="{W-1.5}" height="{H-1.5}" rx="21.5" fill="none" stroke="{t['rule']}" stroke-width="1.5"/>
 
-<text class="mono in d1" x="56" y="74">sj<tspan fill="{t['red']}">.</tspan></text>
+<text class="mono in d1" x="56" y="62">sj<tspan fill="{t['red']}">.</tspan></text>
 
 <g class="in d1">
-<rect x="880" y="42" width="264" height="40" rx="20" fill="{t['card']}" stroke="{t['rule']}"/>
-<circle class="ring" cx="904" cy="62" r="5" fill="none" stroke="{t['blue']}" stroke-width="2"/>
-<circle cx="904" cy="62" r="5" fill="{t['blue']}"/>
-<text class="pill" x="920" y="67">Open to remote roles · IST</text>
+<rect x="880" y="30" width="264" height="40" rx="20" fill="{t['card']}" stroke="{t['rule']}"/>
+<circle class="ring" cx="904" cy="50" r="5" fill="none" stroke="{t['blue']}" stroke-width="2"/>
+<circle cx="904" cy="50" r="5" fill="{t['blue']}"/>
+<text class="pill" x="920" y="55">Open to remote roles · IST</text>
 </g>
 
-<text class="label in d1" x="{W/2}" y="128" text-anchor="middle">A LITTLE CURIOSITY. A LOT OF BUILDING.</text>
-<text class="name in d2" x="{W/2}" y="246" text-anchor="middle">{name_regular}<tspan class="it">{name_italic}</tspan></text>
+<text class="label in d1" x="{W/2}" y="100" text-anchor="middle">A LITTLE CURIOSITY. A LOT OF BUILDING.</text>
+<text class="name in d2" x="{W/2}" y="198" text-anchor="middle">{name_regular}<tspan class="it">{name_italic}</tspan></text>
 
 <g class="in d3">
-<circle class="pulse" cx="64" cy="301" r="5" fill="{t['red']}"/>
-<text class="pt" x="80" y="309">AI &amp; Software Engineering</text>
-<text class="ps" x="64" y="338">Backend services, AI systems and developer tools.</text>
+<circle class="pulse" cx="64" cy="245" r="5" fill="{t['red']}"/>
+<text class="pt" x="80" y="253">AI &amp; Software Engineering</text>
+<text class="ps" x="64" y="280">Backend services, AI systems and developer tools.</text>
 </g>
 <g class="in d4">
-<circle class="pulse b" cx="1136" cy="301" r="5" fill="{t['blue']}"/>
-<text class="pt" x="1120" y="309" text-anchor="end">Automation &amp; Operations</text>
-<text class="ps" x="1136" y="338" text-anchor="end">Connecting tools and automating everyday workflows.</text>
+<circle class="pulse b" cx="1136" cy="245" r="5" fill="{t['blue']}"/>
+<text class="pt" x="1120" y="253" text-anchor="end">Automation &amp; Operations</text>
+<text class="ps" x="1136" y="280" text-anchor="end">Connecting tools and automating everyday workflows.</text>
 </g>
 </svg>
 """
@@ -242,6 +244,58 @@ def more_work(theme: str) -> str:
 <text class="l" x="34" y="25">More work</text>
 <g class="arrow"><circle cx="142" cy="20" r="12" fill="{t['ink']}"/>
 <path d="M137 25 L147 15 M140 15 H147 V22" fill="none" stroke="{t['card']}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>
+</svg>
+"""
+
+
+# --------------------------------------------------------------------------- Bug Hunt buttons
+def catch_button(theme: str) -> str:
+    t = THEMES[theme]
+    W, H = 440, 76
+    label = "Catch a bug"
+    faces = serif_faces(regular_text=label)
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-label="Catch a bug">
+<defs><style>
+{faces}
+.l{{font-family:{SERIF};font-size:32px;fill:{t['btn_fg']}}}
+.s{{font:500 12px {SANS};letter-spacing:2px;fill:{t['btn_fg']};opacity:.7}}
+.net{{transform-box:fill-box;transform-origin:20% 90%;animation:swing 2.6s ease-in-out infinite}}
+@keyframes swing{{0%,100%{{transform:rotate(-10deg)}}50%{{transform:rotate(12deg)}}}}
+.bug{{animation:hop 2.6s ease-in-out infinite}}
+@keyframes hop{{0%,100%{{transform:translate(0,0)}}50%{{transform:translate(-6px,-3px)}}}}
+{REDUCED_MOTION}
+</style></defs>
+<rect width="{W}" height="{H}" rx="{H/2}" fill="{t['btn_bg']}"/>
+<g class="net" stroke="{t['btn_fg']}" stroke-width="2.4" fill="none" stroke-linecap="round">
+<line x1="40" y1="56" x2="56" y2="38"/>
+<ellipse cx="64" cy="29" rx="13" ry="10" transform="rotate(-40 64 29)"/>
+<path d="M56 23 L72 35 M60 19 L75 31 M54 29 L66 39" stroke-width="1.2" opacity=".7"/>
+</g>
+<g class="bug"><ellipse cx="96" cy="44" rx="6" ry="7.5" fill="{t['red']}"/><circle cx="96" cy="35" r="3.6" fill="{t['red']}"/></g>
+<text class="l" x="124" y="47">{label}</text>
+<text class="s" x="300" y="44">PLAY  →</text>
+</svg>
+"""
+
+
+def play_button(theme: str) -> str:
+    """The jump button under the header that scrolls down to the game."""
+    t = THEMES[theme]
+    W, H = 236, 44
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-label="Play Bug Hunt">
+<defs><style>
+.l{{font:600 15px {SANS};fill:{t['btn_fg']}}}
+.hop{{animation:hop 1.8s ease-in-out infinite}}
+@keyframes hop{{0%,100%{{transform:translateY(0)}}50%{{transform:translateY(3px)}}}}
+.bug{{transform-box:fill-box;transform-origin:center;animation:wig 1.2s ease-in-out infinite}}
+@keyframes wig{{0%,100%{{transform:rotate(-8deg)}}50%{{transform:rotate(8deg)}}}}
+{REDUCED_MOTION}
+</style></defs>
+<rect width="{W}" height="{H}" rx="{H/2}" fill="{t['btn_bg']}"/>
+<g class="bug"><ellipse cx="30" cy="24" rx="7" ry="8.5" fill="{t['red']}"/><circle cx="30" cy="13.5" r="4.2" fill="{t['red']}"/>
+<path d="M23 20 l-5 -3 M23 26 l-6 0 M23 31 l-5 3 M37 20 l5 -3 M37 26 l6 0 M37 31 l5 3" stroke="{t['btn_fg']}" stroke-width="1.6" stroke-linecap="round"/></g>
+<text class="l" x="50" y="27.5">Play Bug Hunt</text>
+<g class="hop"><path d="M200 16 v12 M194 23 l6 6 l6 -6" fill="none" stroke="{t['btn_fg']}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
 </svg>
 """
 
@@ -524,6 +578,8 @@ def main() -> None:
     for theme in THEMES:
         write(ROOT / "assets" / f"header-{theme}.svg", header(theme))
         write(ROOT / "assets" / f"more-work-{theme}.svg", more_work(theme))
+        write(ROOT / "assets" / f"catch-button-{theme}.svg", catch_button(theme))
+        write(ROOT / "assets" / f"play-bug-hunt-{theme}.svg", play_button(theme))
         for c in CARDS:
             write(ROOT / "assets" / "cards" / f"{c['slug']}-{theme}.svg", card(c, theme))
         for bug in data["bugs"]:

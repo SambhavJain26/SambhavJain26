@@ -1,7 +1,6 @@
 """Bug Hunt: turn game state into README markdown and issue replies (pure functions)."""
 from __future__ import annotations
 
-import html
 from datetime import datetime
 from urllib.parse import quote
 
@@ -11,18 +10,17 @@ OWNER = "SambhavJain26"
 REPO = "SambhavJain26"
 BRANCH = "main"
 PROFILE_URL = f"https://github.com/{OWNER}"
+GAME_URL = f"{PROFILE_URL}#bug-hunt"
 RAW_BASE = f"https://raw.githubusercontent.com/{OWNER}/{REPO}/{BRANCH}"
 
 START = "<!-- BUGHUNT:START -->"
 END = "<!-- BUGHUNT:END -->"
 
 ISSUE_BODY = ("Just press **Create** without changing the title. "
-              "A bot will check your answer in about a minute, reply here and close this issue. 🐛")
-
-
-def answer_url(mode: str, cid: str, answer: str) -> str:
-    title = f"bughunt: {mode} {cid} {answer}"
-    return f"https://github.com/{OWNER}/{REPO}/issues/new?title={quote(title)}&body={quote(ISSUE_BODY)}"
+              "In about a minute a bug will appear here with a challenge. Answer it in a comment to catch it. 🐛")
+CATCH_URL = (f"https://github.com/{OWNER}/{REPO}/issues/new"
+             f"?title={quote('bughunt: catch')}&body={quote(ISSUE_BODY)}")
+LANG = {"python": "python", "javascript": "javascript"}
 
 
 def _pic(path_light: str, path_dark: str, width: int, alt: str) -> str:
@@ -37,37 +35,7 @@ def _date(iso: str) -> str:
         return iso[:10]
 
 
-# ------------------------------------------------------------------ challenges
-def report_card(ch: dict, data: dict) -> str:
-    names = {b["id"]: b["name"] for b in data["bugs"]}
-    buttons = " ".join(f'<kbd><a href="{answer_url("report", ch["id"], opt)}">{names[opt]}</a></kbd>'
-                       for opt in ch["options"])
-    return ('<b>🕵️ Bug report</b> <sub>· easier</sub><br><br>'
-            f'<i>“{html.escape(ch["text"])}”</i><br><br>'
-            f'<b>Which bug did this?</b><br><br>{buttons}')
-
-
-def code_card(ch: dict) -> str:
-    width = len(str(len(ch["lines"])))
-    body = "\n".join(f"{i:>{width}}  {html.escape(line)}" for i, line in enumerate(ch["lines"], 1))
-    buttons = " ".join(f'<kbd><a href="{answer_url("code", ch["id"], str(i))}">Line {i}</a></kbd>'
-                       for i in range(1, len(ch["lines"]) + 1))
-    lang = "Python" if ch["lang"] == "python" else "JavaScript"
-    return ('<b>🔍 Code challenge</b> <sub>· double points</sub><br>'
-            f'<pre>{body}</pre>'
-            f'<b>Which line has the bug?</b> <sub>{lang}</sub><br><br>{buttons}')
-
-
-def challenge_table(state: dict, data: dict, challenges: dict) -> str:
-    rep = engine.current_challenge(state, challenges, "report")
-    code = engine.current_challenge(state, challenges, "code")
-    return ('<table><tr>'
-            f'<td width="50%" valign="top">{report_card(rep, data)}</td>'
-            f'<td width="50%" valign="top">{code_card(code)}</td>'
-            '</tr></table>')
-
-
-# ------------------------------------------------------------------ bugdex + board
+# ------------------------------------------------------------------ README section
 def bugdex_table(state: dict, data: dict, per_row: int = 4) -> str:
     rarities = data["rarities"]
     cells = []
@@ -103,7 +71,8 @@ def side_tables(state: dict, data: dict) -> str:
             '</tr></table>')
 
 
-def section(state: dict, data: dict, challenges: dict) -> str:
+def section(state: dict, data: dict) -> str:
+    button = _pic("assets/catch-button-light.svg", "assets/catch-button-dark.svg", 330, "Catch a bug")
     total = len(data["bugs"])
     if state["total"]:
         board = side_tables(state, data)
@@ -114,9 +83,9 @@ def section(state: dict, data: dict, challenges: dict) -> str:
         footer = ""
     return "\n".join([
         START,
-        challenge_table(state, data, challenges),
-        f'<p align="center"><sub>Each answer opens a pre-filled issue. Press <b>Create</b> and a bot replies in about a minute. '
-        f'{engine.MAX_TRIES} tries per challenge · new challenges after {engine.SOLVES_TO_ROTATE} solves or every day.</sub></p>',
+        f'<p align="center"><a href="{CATCH_URL}">{button}</a></p>',
+        '<p align="center"><sub>🎲 Luck decides which bug shows up · 🧠 skill decides if you catch it<br>'
+        'Press <b>Create</b> on the issue, then answer the bot\'s challenge in a comment.</sub></p>',
         "",
         bugdex_table(state, data),
         "",
@@ -135,7 +104,61 @@ def replace_section(readme: str, new_section: str) -> str:
 
 
 # ------------------------------------------------------------------ issue replies
-BACK = f"[Back to the profile →]({PROFILE_URL})"
+BACK = f"[Back to the profile →]({GAME_URL})"
+
+
+def _example_letter(ch: dict, options: list[str]) -> str:
+    """An example that is never the right answer, so the hint can't give it away."""
+    return next(engine.LETTERS[i] for i, opt in enumerate(options) if opt != ch["bug"])
+
+
+def _example_line(ch: dict) -> int:
+    return next(i for i in range(1, len(ch["lines"]) + 1) if i not in ch["answer"])
+
+
+def _challenge_block(mode: str, ch: dict, data: dict, options: list[str] | None = None) -> list[str]:
+    names = {b["id"]: b["name"] for b in data["bugs"]}
+    if mode == "report":
+        return [
+            "### 🕵️ Bug report",
+            "",
+            f"> {ch['text']}",
+            "",
+            "**Which bug did this?**",
+            "",
+            *[f"**{engine.LETTERS[i]}.** {names[opt]}  " for i, opt in enumerate(options)],
+            "",
+            f"👉 **Reply with just the letter**, for example `{_example_letter(ch, options)}`.",
+        ]
+    width = len(str(len(ch["lines"])))
+    code = "\n".join(f"{i:>{width}}  {line}" for i, line in enumerate(ch["lines"], 1))
+    return [
+        "### 🔍 Code challenge · double points",
+        "",
+        f"```{LANG[ch['lang']]}",
+        code,
+        "```",
+        "",
+        "**Which line has the bug?**",
+        "",
+        f"👉 **Reply with just the line number**, for example `{_example_line(ch)}`.",
+    ]
+
+
+def reply_encounter(result: dict, data: dict) -> str:
+    bug = result["bug"]
+    rarity = data["rarities"][bug["rarity"]]
+    return "\n".join([
+        f"## 🎲 A wild **{rarity['label']}** bug appeared! {rarity['emoji']}",
+        "",
+        f'<img src="{RAW_BASE}/game/art/unknown-{bug["rarity"]}-light.svg" width="120" alt="An undiscovered {rarity["label"]} bug">',
+        "",
+        "It's hiding somewhere in here. Find it to catch it.",
+        "",
+        *_challenge_block(result["mode"], result["challenge"], data, result.get("options")),
+        "",
+        f"<sub>{engine.MAX_TRIES} tries · the bug crawls away if nobody answers within a day</sub>",
+    ])
 
 
 def reply_caught(result: dict, data: dict) -> str:
@@ -144,11 +167,11 @@ def reply_caught(result: dict, data: dict) -> str:
     h = result["hunter"]
     extras = []
     if result["mode"] == "code":
-        extras.append("double points for a code challenge")
-    if result["first_solver"]:
-        extras.append(f"+{engine.FIRST_SOLVER_BONUS} first-solver bonus")
+        extras.append("double points for code")
+    if result["first_ever"]:
+        extras.append(f"+{engine.DISCOVERER_BONUS} discoverer bonus")
     lines = [
-        f"## 🎯 Correct! You caught **{bug['name']}**",
+        f"## 🎯 Caught it! It was **{bug['name']}**",
         "",
         f'<img src="{RAW_BASE}/game/art/{bug["id"]}-light.svg" width="160" alt="{bug["name"]}">',
         "",
@@ -159,62 +182,50 @@ def reply_caught(result: dict, data: dict) -> str:
         f"> {bug['flavor']}",
         "",
     ]
-    if result.get("first_ever"):
-        lines += ["✨ **First ever catch of this bug!** It's now unlocked in the Bugdex.", ""]
-    lines += [f"Your totals: **{h['catches']}** caught · **{h['points']}** pts.", "", BACK]
+    if result["first_ever"]:
+        lines += ["✨ **You're the first person ever to catch this bug!** It's now unlocked in the Bugdex.", ""]
+    lines += [f"Your totals: **{h['catches']}** caught · **{h['points']}** pts.", "",
+              f"{BACK} · [Catch another]({CATCH_URL})"]
     return "\n".join(lines)
 
 
 def reply_wrong(result: dict) -> str:
     left = result["tries_left"]
-    return (f"## 🐛 The bug escaped\n\nNot this one. **Hint:** {result['challenge']['hint']}\n\n"
-            f"You have **{left}** {'try' if left == 1 else 'tries'} left on this challenge.\n\n{BACK}")
+    return (f"🐛 **Not there.** Hint: {result['challenge']['hint']}\n\n"
+            f"**{left}** {'try' if left == 1 else 'tries'} left. Reply with another answer.")
 
 
-def reply_out_of_tries(result: dict) -> str:
-    return ("## 🫥 That one got away\n\nYou've used all your tries on this challenge. "
-            f"A fresh one appears after {engine.SOLVES_TO_ROTATE} people solve it, or tomorrow.\n\n{BACK}")
+def reply_escaped(result: dict) -> str:
+    return (f"## 💨 The bug escaped\n\nIt slipped away after {engine.MAX_TRIES} tries. "
+            f"There are plenty more where it came from.\n\n{BACK} · [Catch another]({CATCH_URL})")
 
 
-def reply_already_solved() -> str:
-    return f"You already caught this one. 👍 Try the other challenge, or come back when a new one appears.\n\n{BACK}"
+def reply_invalid(result: dict) -> str:
+    if result["encounter"]["mode"] == "report":
+        return "🤔 Reply with just one letter: `A`, `B`, `C` or `D`."
+    n = len(result["challenge"]["lines"])
+    return f"🤔 Reply with just a line number from `1` to `{n}`."
 
 
-def reply_stale() -> str:
-    return f"⏳ That challenge has already rotated. There's a fresh one waiting on the profile.\n\n{BACK}"
-
-
-def reply_invalid_option() -> str:
-    return f"🤔 That answer isn't one of the options. Use the buttons on the profile so the title stays exact.\n\n{BACK}"
+def reply_expired() -> str:
+    return f"🐾 The bug crawled away while nobody was looking. Come back and try again!\n\n{BACK}"
 
 
 def reply_limit(result: dict) -> str:
-    return f"😴 You've hit today's limit of {result['limit']} answers (UTC). Come back tomorrow!\n\n{BACK}"
+    return f"😴 You've hunted {result['limit']} bugs today (UTC). Come back tomorrow!\n\n{BACK}"
 
 
 def reply_unknown() -> str:
-    return ("🤔 I couldn't read that. Answers come from the buttons on the profile, "
-            f"with titles like `bughunt: code c05 3`.\n\n{BACK}")
+    return (f"🤔 I couldn't read that title. Start a hunt with the **Catch a bug** button on the profile, "
+            f"which opens an issue titled exactly `bughunt: catch`.\n\n{BACK}")
 
 
-def reply_duplicate() -> str:
-    return f"This answer was already counted. 👍\n\n{BACK}"
-
-
-def reply_for(result: dict, data: dict) -> str:
+def reply_for_answer(result: dict, data: dict) -> str:
     status = result["status"]
     if status == "caught":
         return reply_caught(result, data)
     if status == "wrong":
         return reply_wrong(result)
-    if status == "out_of_tries":
-        return reply_out_of_tries(result)
-    if status == "already_solved":
-        return reply_already_solved()
-    if status == "stale":
-        return reply_stale()
-    if status == "invalid_option":
-        return reply_invalid_option()
-    if status == "limit":
-        return reply_limit(result)
-    return reply_duplicate()
+    if status == "escaped":
+        return reply_escaped(result)
+    return reply_invalid(result)

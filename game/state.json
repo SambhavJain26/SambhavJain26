@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "total": 0,
   "counts": {
     "typo": 0,
@@ -22,19 +22,5 @@
   "hunters": {},
   "recent": [],
   "processed": [],
-  "current": {
-    "report": {
-      "index": 0,
-      "id": "r01",
-      "since": "2026-11-14",
-      "solvers": []
-    },
-    "code": {
-      "index": 4,
-      "id": "c05",
-      "since": "2026-11-14",
-      "solvers": []
-    }
-  },
-  "tries": {}
+  "encounters": {}
 }

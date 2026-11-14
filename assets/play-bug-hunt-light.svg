@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="236" height="44" viewBox="0 0 236 44" role="img" aria-label="Play Bug Hunt">
+<defs><style>
+.l{font:600 15px 'IBM Plex Sans','Segoe UI',Helvetica,Arial,sans-serif;fill:#fafaf9}
+.hop{animation:hop 1.8s ease-in-out infinite}
+@keyframes hop{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
+.bug{transform-box:fill-box;transform-origin:center;animation:wig 1.2s ease-in-out infinite}
+@keyframes wig{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important}.in{opacity:1!important}}
+</style></defs>
+<rect width="236" height="44" rx="22.0" fill="#191a1c"/>
+<g class="bug"><ellipse cx="30" cy="24" rx="7" ry="8.5" fill="#e6243f"/><circle cx="30" cy="13.5" r="4.2" fill="#e6243f"/>
+<path d="M23 20 l-5 -3 M23 26 l-6 0 M23 31 l-5 3 M37 20 l5 -3 M37 26 l6 0 M37 31 l5 3" stroke="#fafaf9" stroke-width="1.6" stroke-linecap="round"/></g>
+<text class="l" x="50" y="27.5">Play Bug Hunt</text>
+<g class="hop"><path d="M200 16 v12 M194 23 l6 6 l6 -6" fill="none" stroke="#fafaf9" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
+</svg>

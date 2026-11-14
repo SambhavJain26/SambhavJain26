@@ -3,21 +3,28 @@ name: Bug Hunt
 on:
   issues:
     types: [opened]
+  issue_comment:
+    types: [created] # players answer the bot's challenge in a comment
   schedule:
-    - cron: "23 */6 * * *" # sweep up any catch that a busy moment skipped
+    - cron: "23 */6 * * *" # sweep up anything a busy moment skipped, and let unanswered bugs crawl away
   workflow_dispatch:
 
 permissions: {}
 
-# One run at a time, so two catches never overwrite each other's state.
+# One run at a time, so two hunts never overwrite each other's state. A run that gets
+# skipped while another is queued loses nothing: every run re-reads all open hunts.
 concurrency:
   group: bug-hunt
   cancel-in-progress: false
 
 jobs:
   play:
-    # Ignore ordinary issues; the title check is done again, strictly, in Python.
-    if: github.event_name != 'issues' || startsWith(github.event.issue.title, 'bughunt')
+    # Ignore ordinary issues, PRs and the bot's own comments; Python re-checks everything strictly.
+    if: >-
+      github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issues' && startsWith(github.event.issue.title, 'bughunt')) ||
+      (github.event_name == 'issue_comment' && startsWith(github.event.issue.title, 'bughunt') &&
+       github.event.comment.user.type != 'Bot')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -28,7 +35,7 @@ jobs:
 
       # Untrusted issue titles are never put into this file or a shell: Python
       # fetches them with `gh` and only matches them against a fixed pattern.
-      - name: Process catches
+      - name: Process hunts
         env:
           GH_TOKEN: ${{ github.token }}
         run: python3 -m game.play process

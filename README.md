@@ -14,9 +14,14 @@
   <a href="https://jainsambhav.com/Sambhav-Jain-Resume.pdf"><img src="https://img.shields.io/badge/R%C3%A9sum%C3%A9-PDF-62636a?style=flat-square" alt="Résumé"></a>
 </p>
 
+<p align="center">
+  <a href="#bug-hunt"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/play-bug-hunt-dark.svg"><img src="assets/play-bug-hunt-light.svg" height="40" alt="Play Bug Hunt"></picture></a><br>
+  <sub>Jump to <a href="#selected-work">Selected work</a> · <a href="#bug-hunt">Bug Hunt</a> · <a href="#tools">Tools</a></sub>
+</p>
+
 ### Hi, I'm Sambhav 👋
 
-<img align="right" width="260" src="https://media.giphy.com/media/l3q2zbskZp2j8wniE/giphy-downsized.gif" alt="Steve Ballmer on stage chanting developers, developers, developers">
+<img align="right" width="260" hspace="16" src="https://media.giphy.com/media/l3q2zbskZp2j8wniE/giphy-downsized.gif" alt="Steve Ballmer on stage chanting developers, developers, developers">
 
 **Developers, developers, developers!** Okay, it's just me. Same Steve Ballmer energy, zero sweat stains.
 
@@ -26,6 +31,8 @@ I'm who you call when your backend needs to survive a traffic spike, your AI nee
 - 🕐 **Based in** India (IST), with flexible overlap across time zones
 
 <br clear="right">
+
+<a name="selected-work"></a>
 
 ### Selected work <a href="https://jainsambhav.com/#work"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/more-work-dark.svg"><img align="right" src="assets/more-work-light.svg" height="30" alt="More work on jainsambhav.com"></picture></a>
 
@@ -44,23 +51,21 @@ I'm who you call when your backend needs to survive a traffic spike, your AI nee
 ▶ Video walkthroughs: <a href="https://www.youtube.com/watch?v=w_1fqlGBlys">leasing pipeline</a> · <a href="https://www.youtube.com/watch?v=-9j04tRmViU">turnover handoff</a> · <a href="https://www.youtube.com/watch?v=F0yNJtyLAC0">ticket triage</a> · <a href="https://www.youtube.com/watch?v=BD9sDgbUDLY">certificate OCR</a> · <a href="https://www.youtube.com/watch?v=IOFey-nljRM">renewal check-ins</a>
 </sub></p>
 
+<a name="bug-hunt"></a>
+
 ### 🐛 Bug Hunt
 
-<img align="right" width="240" src="https://media.giphy.com/media/zOvBKUUEERdNm/giphy-downsized.gif" alt="A monkey typing away at a computer, programmer-style">
+<img align="right" width="260" hspace="16" src="https://media.giphy.com/media/zOvBKUUEERdNm/giphy-downsized.gif" alt="A monkey typing away at a computer, programmer-style">
 
 A tiny game while you're here. Every bug in software has to come from somewhere, and apparently they all live in this README.
 
-**Catch a bug by finding it.** Solve the bug report, or spot the broken line in the code challenge (double points). Rarer bugs are harder to find, and the first solver of each challenge gets a bonus. Fill the **Bugdex** and climb the **leaderboard**: 16 bugs, from the humble *Typo* to the legendary *Works on My Machine*.
+Press **Catch a bug** and a random bug shows up. 🎲 **Luck** decides how rare it is: Commons are everywhere, Legendaries almost never appear. 🧠 **Skill** decides if you catch it: solve its bug report, or spot the broken line of code for double points, in up to 3 tries. Fill the **Bugdex** and climb the **leaderboard**: 16 bugs, from the humble *Typo* to the legendary *Works on My Machine*.
 
 <br clear="right">
 
 <!-- BUGHUNT:START -->
-<table><tr><td width="50%" valign="top"><b>🕵️ Bug report</b> <sub>· easier</sub><br><br><i>“Nobody can log in. The error log says: NameError: name &#x27;pasword&#x27; is not defined.”</i><br><br><b>Which bug did this?</b><br><br><kbd><a href="https://github.com/SambhavJain26/SambhavJain26/issues/new?title=bughunt%3A%20report%20r01%20null-pointer&body=Just%20press%20%2A%2ACreate%2A%2A%20without%20changing%20the%20title.%20A%20bot%20will%20check%20your%20answer%20in%20about%20a%20minute%2C%20reply%20here%20and%20close%20this%20issue.%20%F0%9F%90%9B">Null Pointer</a></kbd> <kbd><a href="https://github.com/SambhavJain26/SambhavJain26/issues/new?title=bughunt%3A%20report%20r01%20typo&body=Just%20press%20%2A%2ACreate%2A%2A%20without%20changing%20the%20title.%20A%20bot%20will%20check%20your%20answer%20in%20about%20a%20minute%2C%20reply%20here%20and%20close%20this%20issue.%20%F0%9F%90%9B">Typo</a></kbd> <kbd><a href="https://github.com/SambhavJain26/SambhavJain26/issues/new?title=bughunt%3A%20report%20r01%20timezone-bug&body=Just%20press%20%2A%2ACreate%2A%2A%20without%20changing%20the%20title.%20A%20bot%20will%20check%20your%20answer%20in%20about%20a%20minute%2C%20reply%20here%20and%20close%20this%20issue.%20%F0%9F%90%9B">Timezone Bug</a></kbd> <kbd><a href="https://github.com/SambhavJain26/SambhavJain26/issues/new?title=bughunt%3A%20report%20r01%20race-condition&body=Just%20press%20%2A%2ACreate%2A%2A%20without%20changing%20the%20title.%20A%20bot%20will%20check%20your%20answer%20in%20about%20a%20minute%2C%20reply%20here%20and%20close%20this%20issue.%20%F0%9F%90%9B">Race Condition</a></kbd></td><td width="50%" valign="top"><b>🔍 Code challenge</b> <sub>· double points</sub><br><pre>1  def average(scores):
-2      total = 0
-3      for i in range(1, len(scores)):
-4          total += scores[i]
-5      return total / len(scores)</pre><b>Which line has the bug?</b> <sub>Python</sub><br><br><kbd><a href="https://github.com/SambhavJain26/SambhavJain26/issues/new?title=bughunt%3A%20code%20c05%201&body=Just%20press%20%2A%2ACreate%2A%2A%20without%20changing%20the%20title.%20A%20bot%20will%20check%20your%20answer%20in%20about%20a%20minute%2C%20reply%20here%20and%20close%20this%20issue.%20%F0%9F%90%9B">Line 1</a></kbd> <kbd><a href="https://github.com/SambhavJain26/SambhavJain26/issues/new?title=bughunt%3A%20code%20c05%202&body=Just%20press%20%2A%2ACreate%2A%2A%20without%20changing%20the%20title.%20A%20bot%20will%20check%20your%20answer%20in%20about%20a%20minute%2C%20reply%20here%20and%20close%20this%20issue.%20%F0%9F%90%9B">Line 2</a></kbd> <kbd><a href="https://github.com/SambhavJain26/SambhavJain26/issues/new?title=bughunt%3A%20code%20c05%203&body=Just%20press%20%2A%2ACreate%2A%2A%20without%20changing%20the%20title.%20A%20bot%20will%20check%20your%20answer%20in%20about%20a%20minute%2C%20reply%20here%20and%20close%20this%20issue.%20%F0%9F%90%9B">Line 3</a></kbd> <kbd><a href="https://github.com/SambhavJain26/SambhavJain26/issues/new?title=bughunt%3A%20code%20c05%204&body=Just%20press%20%2A%2ACreate%2A%2A%20without%20changing%20the%20title.%20A%20bot%20will%20check%20your%20answer%20in%20about%20a%20minute%2C%20reply%20here%20and%20close%20this%20issue.%20%F0%9F%90%9B">Line 4</a></kbd> <kbd><a href="https://github.com/SambhavJain26/SambhavJain26/issues/new?title=bughunt%3A%20code%20c05%205&body=Just%20press%20%2A%2ACreate%2A%2A%20without%20changing%20the%20title.%20A%20bot%20will%20check%20your%20answer%20in%20about%20a%20minute%2C%20reply%20here%20and%20close%20this%20issue.%20%F0%9F%90%9B">Line 5</a></kbd></td></tr></table>
-<p align="center"><sub>Each answer opens a pre-filled issue. Press <b>Create</b> and a bot replies in about a minute. 3 tries per challenge · new challenges after 3 solves or every day.</sub></p>
+<p align="center"><a href="https://github.com/SambhavJain26/SambhavJain26/issues/new?title=bughunt%3A%20catch&body=Just%20press%20%2A%2ACreate%2A%2A%20without%20changing%20the%20title.%20In%20about%20a%20minute%20a%20bug%20will%20appear%20here%20with%20a%20challenge.%20Answer%20it%20in%20a%20comment%20to%20catch%20it.%20%F0%9F%90%9B"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/catch-button-dark.svg"><img src="assets/catch-button-light.svg" width="330" alt="Catch a bug"></picture></a></p>
+<p align="center"><sub>🎲 Luck decides which bug shows up · 🧠 skill decides if you catch it<br>Press <b>Create</b> on the issue, then answer the bot's challenge in a comment.</sub></p>
 
 <table align="center">
 <tr><td align="center" width="25%"><picture><source media="(prefers-color-scheme: dark)" srcset="game/art/unknown-common-dark.svg"><img src="game/art/unknown-common-light.svg" width="112" alt="Undiscovered bug"></picture><br><sub><b>???</b></sub><br><sub>Common · not caught yet</sub></td><td align="center" width="25%"><picture><source media="(prefers-color-scheme: dark)" srcset="game/art/unknown-common-dark.svg"><img src="game/art/unknown-common-light.svg" width="112" alt="Undiscovered bug"></picture><br><sub><b>???</b></sub><br><sub>Common · not caught yet</sub></td><td align="center" width="25%"><picture><source media="(prefers-color-scheme: dark)" srcset="game/art/unknown-common-dark.svg"><img src="game/art/unknown-common-light.svg" width="112" alt="Undiscovered bug"></picture><br><sub><b>???</b></sub><br><sub>Common · not caught yet</sub></td><td align="center" width="25%"><picture><source media="(prefers-color-scheme: dark)" srcset="game/art/unknown-common-dark.svg"><img src="game/art/unknown-common-light.svg" width="112" alt="Undiscovered bug"></picture><br><sub><b>???</b></sub><br><sub>Common · not caught yet</sub></td></tr>
@@ -75,9 +80,11 @@ A tiny game while you're here. Every bug in software has to come from somewhere,
 <!-- BUGHUNT:END -->
 
 <p align="center">
-  <img width="320" src="https://media.giphy.com/media/CuMiNoTRz2bYc/giphy-downsized.gif" alt="Young Anakin Skywalker grinning: it's working"><br>
+  <img width="360" src="https://media.giphy.com/media/CuMiNoTRz2bYc/giphy-downsized.gif" alt="Young Anakin Skywalker grinning: it's working"><br>
   <sub>pov: when you find the bug</sub>
 </p>
+
+<a name="tools"></a>
 
 ### Tools I've worked with
 
@@ -92,6 +99,6 @@ A tiny game while you're here. Every bug in software has to come from somewhere,
 ---
 
 <p align="center">
-  <img width="320" src="https://media.giphy.com/media/lKXd9sYM5dI9W/giphy-downsized.gif" alt="Anchorman: 60 percent of the time, it works every time"><br>
+  <img width="360" src="https://media.giphy.com/media/lKXd9sYM5dI9W/giphy-downsized.gif" alt="Anchorman: 60 percent of the time, it works every time"><br>
   <sub><a href="mailto:sambhav@jainsambhav.com">Say hi</a> 👋</sub>
 </p>
