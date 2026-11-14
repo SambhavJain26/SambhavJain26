@@ -33,12 +33,24 @@ test("rarity roll follows the weights", () => {
   assert(Math.abs(counts.legendary / 20000 - 0.02) < 0.006, "legendary " + counts.legendary);
 });
 
-test("legendary is always a code challenge; others get both modes", () => {
-  const rnd = seeded(2), legendary = DATA.bugs.find((b) => b.rarity === "legendary");
-  for (let i = 0; i < 50; i++) assert.strictEqual(rules.pickMode(DATA.bugs, legendary, rnd), "code");
-  const modes = new Set();
-  for (let i = 0; i < 50; i++) modes.add(rules.pickMode(DATA.bugs, byId.typo, rnd));
-  assert.deepStrictEqual([...modes].sort(), ["code", "report"]);
+test("the player can pick report or code; the legendary is code only", () => {
+  const legendary = DATA.bugs.find((b) => b.rarity === "legendary");
+  assert.deepStrictEqual(rules.modesFor(DATA.bugs, legendary), ["code"]);
+  for (const b of DATA.bugs.filter((x) => x !== legendary)) assert.deepStrictEqual(rules.modesFor(DATA.bugs, b), ["report", "code"]);
+});
+
+test("both challenges are on offer until the player chooses", () => {
+  const rnd = seeded(5);
+  let enc;
+  do { enc = rules.newEncounter(DATA, CH, rnd); } while (enc.bug.rarity === "legendary");
+  assert.strictEqual(enc.mode, null);
+  assert(enc.offers.report && enc.offers.code);
+  assert.strictEqual(rules.answer(enc, DATA, 0).status, "done"); // can't answer before choosing
+  assert.strictEqual(rules.choose(enc, "code"), true);
+  assert.strictEqual(rules.choose(enc, "report"), false); // no switching after choosing
+  assert.strictEqual(enc.challenge, enc.offers.code);
+  const leg = { bug: DATA.bugs.find((b) => b.rarity === "legendary"), modes: ["code"], offers: {}, mode: null };
+  assert.strictEqual(rules.choose(leg, "report"), false);
 });
 
 test("report decoys share the rarity, so it never gives the answer away", () => {
@@ -60,6 +72,7 @@ test("every bug has a report and a code challenge", () => {
 
 test("right answer catches, with double points for code", () => {
   const enc = { bug: byId["null-pointer"], mode: "code", challenge: rules.challengeFor(CH, "code", "null-pointer"), tries: 0, done: false };
+  assert.strictEqual(rules.points(DATA, byId["null-pointer"], "report"), 5);
   const r = rules.answer(enc, DATA, enc.challenge.answer[0]);
   assert.strictEqual(r.status, "caught");
   assert.strictEqual(r.points, 5 * rules.CODE_MULTIPLIER);
@@ -79,15 +92,46 @@ test("new encounters are well-formed", () => {
   const rnd = seeded(4);
   for (let i = 0; i < 300; i++) {
     const e = rules.newEncounter(DATA, CH, rnd);
-    assert(e.challenge && e.challenge.bug === e.bug.id);
-    if (e.mode === "report") assert(e.options.includes(e.bug.id));
+    for (const m of e.modes) assert(e.offers[m] && e.offers[m].bug === e.bug.id);
+    if (e.modes.includes("report")) assert(e.options.includes(e.bug.id));
   }
 });
 
-test("leaderboard link matches the bot's title pattern", () => {
-  const url = rules.recordUrl("timezone-bug", "code");
+test("every queued catch goes to the leaderboard, in titles the bot accepts", () => {
+  const pending = [];
+  for (let i = 0; i < 23; i++) pending.push({ bug: DATA.bugs[i % 16].id, mode: i % 2 ? "code" : "report" });
+  const batches = rules.batchTitles(pending);
+  assert.strictEqual(batches.reduce((n, b) => n + b.count, 0), 23); // nothing dropped
+  const pattern = /^bughunt: record( [a-z][a-z-]{0,39}\/[rc])+$/;
+  for (const b of batches) {
+    assert(pattern.test(b.title), b.title);
+    assert(b.count <= rules.MAX_PER_ISSUE);
+    assert(b.title.length <= 256);
+  }
+  assert.strictEqual(batches[0].title.split(" ")[2], DATA.bugs[0].id + "/r");
+  const url = rules.recordUrl(batches[0].title);
   assert(url.startsWith("https://github.com/SambhavJain26/SambhavJain26/issues/new?title="));
-  assert(decodeURIComponent(url).includes("title=bughunt: record timezone-bug code&"));
+  assert(decodeURIComponent(url).includes("title=" + batches[0].title + "&"));
+});
+
+test("code challenges: answers point at real lines", () => {
+  for (const c of CH.code) for (const a of c.answer) assert(a >= 1 && a <= c.lines.length && c.lines[a - 1].trim(), c.id);
+});
+
+test("syntax colours: VS Code-style tokens, and every line is kept intact", () => {
+  const py = rules.tokenize("def f(x): return round(x, 2)  # done", "python");
+  const kinds = Object.fromEntries(py.filter((t) => t[0]).map((t) => [t[1].trim(), t[0]]));
+  assert.strictEqual(kinds.def, "kw");
+  assert.strictEqual(kinds.return, "ctl");
+  assert.strictEqual(kinds.f, "fn");
+  assert.strictEqual(kinds.round, "fn");
+  assert.strictEqual(kinds["2"], "num");
+  assert.strictEqual(kinds["# done"], "com");
+  const js = rules.tokenize('const greeting = "Hi, " + user.name // x', "javascript");
+  assert.deepStrictEqual(js.filter((t) => t[0]).map((t) => t[0]), ["kw", "str", "com"]);
+  for (const c of CH.code) for (const line of c.lines) {
+    assert.strictEqual(rules.tokenize(line, c.lang).map((t) => t[1]).join(""), line, c.id + ": " + line);
+  }
 });
 
 console.log(`\n${passed} tests passed`);

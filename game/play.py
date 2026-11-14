@@ -37,7 +37,8 @@ def load_data() -> dict:
 def load_state(data: dict, path: Path = STATE_PATH) -> dict:
     if path.exists():
         state = json.loads(path.read_text(encoding="utf-8"))
-        if state.get("version") == 4:
+        if state.get("version") in (4, engine.STATE_VERSION):
+            engine.migrate(state, data)
             for bug in data["bugs"]:
                 state["counts"].setdefault(bug["id"], 0)
             return state
@@ -86,7 +87,7 @@ def process(issues: list[dict], state: dict, data: dict, now: datetime) -> list[
             outbox.append({"issue": number, "body": render.reply_unknown()})
             continue
         when = issue.get("createdAt") or now.isoformat()
-        result = engine.record_catch(state, data, login, when, number, parsed["bug"], parsed["mode"])
+        result = engine.record_batch(state, data, login, when, number, parsed["entries"])
         outbox.append({"issue": number, "body": render.reply_for(result, data)})
     return outbox
 

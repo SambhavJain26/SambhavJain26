@@ -3,7 +3,7 @@
 Run from the repo root:  python tools/build_assets.py
 
 Generates (light + dark for each):
-  assets/bar-*.svg            thin top bar in the jainsambhav.com style
+  assets/bar-*.svg            thin top bar: name + the site's two pillars
   assets/cards/*-*.svg        selected-work cards
   assets/more-work-*.svg      "More work" link
   assets/catch-button-*.svg   Bug Hunt "Catch a bug" button
@@ -93,23 +93,34 @@ REDUCED_MOTION = "@media (prefers-reduced-motion: reduce){*{animation:none!impor
 
 
 # --------------------------------------------------------------------------- top bar
+def _serif_width(ttf: str, text: str, size: float) -> float:
+    """Advance width of `text` in an embedded serif font, so shapes can sit right after it."""
+    font = TTFont(FONTS / ttf, recalcTimestamp=False)
+    cmap, hmtx = font.getBestCmap(), font["hmtx"]
+    return sum(hmtx[cmap[ord(c)]][0] for c in text) / font["head"].unitsPerEm * size
+
+
 def bar(theme: str) -> str:
-    """A thin bar in the jainsambhav.com style: monogram, tagline, link pill. No name on purpose."""
+    """A thin bar in the jainsambhav.com style: name on the left, the site's two pillars on the right."""
     t = THEMES[theme]
     W, H = 1200, 88
-    faces = serif_faces(regular_text="sj")
-    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-label="jainsambhav.com: a little curiosity, a lot of building">
-<title>jainsambhav.com</title>
+    size = 46
+    first, last = "Sambhav ", "Jain"
+    name_w = (_serif_width("InstrumentSerif-Regular.ttf", first, size)
+              + _serif_width("InstrumentSerif-Italic.ttf", last, size))
+    faces = serif_faces(regular_text=first, italic_text=last)
+    dot_x = 40 + name_w + 7
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-label="Sambhav Jain: AI and software engineering, automation and operations">
+<title>Sambhav Jain: AI &amp; Software Engineering · Automation &amp; Operations</title>
 <defs>
 <style>
 {faces}
-.mono{{font-family:{SERIF};font-size:44px;fill:{t['ink']}}}
-.tag{{font:600 13px {SANS};letter-spacing:3.4px;fill:{t['muted']}}}
-.url{{font:500 16px {SANS};fill:{t['ink']}}}
+.name{{font-family:{SERIF};font-size:{size}px;fill:{t['ink']}}}
+.it{{font-family:{SERIF_IT};font-style:italic}}
+.pill{{font:500 21px {SANS};fill:{t['ink']}}}
+.dot{{font-size:20px}}
 .pulse{{transform-box:fill-box;transform-origin:center;animation:pulse 3s ease-in-out infinite}}
 @keyframes pulse{{0%,100%{{transform:scale(1);opacity:1}}50%{{transform:scale(1.5);opacity:.6}}}}
-.arrow{{animation:nudge 3s ease-in-out infinite}}
-@keyframes nudge{{0%,70%,100%{{transform:translate(0,0)}}80%{{transform:translate(2px,-2px)}}}}
 {REDUCED_MOTION}
 </style>
 <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="11" cy="11" r="1.15" fill="{t['dot']}"/></pattern>
@@ -120,12 +131,9 @@ def bar(theme: str) -> str:
 <rect width="{W}" height="{H}" fill="url(#dots)" opacity=".7"/>
 </g>
 <rect x=".75" y=".75" width="{W-1.5}" height="{H-1.5}" rx="17.5" fill="none" stroke="{t['rule']}" stroke-width="1.5"/>
-<text class="mono" x="40" y="58">sj</text>
-<circle class="pulse" cx="68" cy="55" r="4.2" fill="{t['red']}"/>
-<text class="tag" x="{W/2}" y="49" text-anchor="middle">A LITTLE CURIOSITY. A LOT OF BUILDING.</text>
-<rect x="958" y="22" width="206" height="44" rx="22" fill="{t['card']}" stroke="{t['rule']}" stroke-width="1.5"/>
-<text class="url" x="982" y="49">jainsambhav.com</text>
-<g class="arrow"><path d="M1132 50 L1144 38 M1136 38 H1144 V46" fill="none" stroke="{t['ink']}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>
+<text class="name" x="40" y="59">{esc(first.strip())} <tspan class="it">{last}</tspan></text>
+<circle class="pulse" cx="{dot_x:.1f}" cy="56" r="4.6" fill="{t['red']}"/>
+<text class="pill" x="{W-40}" y="51" text-anchor="end"><tspan class="dot" fill="{t['red']}">●</tspan> AI &amp; Software Engineering<tspan dx="40" class="dot" fill="{t['blue']}">●</tspan> Automation &amp; Operations</text>
 </svg>
 """
 

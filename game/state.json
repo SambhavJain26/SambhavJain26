@@ -1,12 +1,12 @@
 {
-  "version": 4,
-  "total": 3,
+  "version": 5,
+  "total": 0,
   "counts": {
     "typo": 0,
-    "missing-semicolon": 1,
-    "trailing-whitespace": 1,
+    "missing-semicolon": 0,
+    "trailing-whitespace": 0,
     "unclosed-bracket": 0,
-    "off-by-one": 1,
+    "off-by-one": 0,
     "flaky-test": 0,
     "merge-conflict": 0,
     "timezone-bug": 0,
@@ -19,41 +19,10 @@
     "deadlock": 0,
     "works-on-my-machine": 0
   },
-  "hunters": {
-    "SambhavJain26": {
-      "catches": 3,
-      "points": 14,
-      "best": "off-by-one",
-      "day": "2026-11-14",
-      "today": 3
-    }
-  },
-  "recent": [
-    {
-      "login": "SambhavJain26",
-      "bug": "trailing-whitespace",
-      "at": "2026-11-14T16:36:27Z",
-      "issue": 3,
-      "mode": "report"
-    },
-    {
-      "login": "SambhavJain26",
-      "bug": "off-by-one",
-      "at": "2026-11-14T15:10:10Z",
-      "issue": 2,
-      "mode": "report"
-    },
-    {
-      "login": "SambhavJain26",
-      "bug": "missing-semicolon",
-      "at": "2026-11-14T15:03:51Z",
-      "issue": 1,
-      "mode": "code"
-    }
-  ],
+  "hunters": {},
+  "recent": [],
   "processed": [
     1,
-    2,
-    3
+    2
   ]
 }

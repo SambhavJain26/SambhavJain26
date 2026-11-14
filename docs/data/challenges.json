@@ -1,38 +1,432 @@
 {
   "report": [
-    {"id": "r01", "bug": "typo", "text": "Nobody can log in. The error log says: NameError: name 'pasword' is not defined.", "hint": "Read the variable name in the error very slowly.", "explain": "A misspelled variable name. One missing letter, one broken login."},
-    {"id": "r02", "bug": "missing-semicolon", "text": "The build fails with 'Unexpected token' on line 12, but line 12 looks perfect.", "hint": "The real problem is often on the line just above the one reported.", "explain": "A missing semicolon on line 11. The parser only notices when it reaches the next line."},
-    {"id": "r03", "bug": "trailing-whitespace", "text": "The coupon code works when people type it, but fails for everyone who copy-pastes it.", "hint": "What sneaks in when you paste text that you can't see?", "explain": "Pasting brings an invisible trailing space, and the comparison never strips it."},
-    {"id": "r04", "bug": "unclosed-bracket", "text": "After a one-line change, every page is blank and the console says 'Unexpected end of input'.", "hint": "The parser reached the end of the file while still waiting for something.", "explain": "A bracket was opened and never closed, so the parser hit the end of the file still waiting."},
-    {"id": "r05", "bug": "off-by-one", "text": "Our 'Top 10 players' leaderboard always shows exactly 9 people.", "hint": "Count where the loop starts and where it stops.", "explain": "A loop or slice stops one item early. Classic off-by-one."},
-    {"id": "r06", "bug": "flaky-test", "text": "The same test passes, fails, then passes again on a re-run. Nobody changed a single line.", "hint": "The code didn't change, so the result depends on something else: timing or order.", "explain": "The test depends on timing or run order, so it fails at random. A flaky test."},
-    {"id": "r07", "bug": "merge-conflict", "text": "The app won't start. Line 42 of config.py now literally contains <<<<<<< HEAD.", "hint": "Those angle brackets were written by git, not by a person.", "explain": "A merge left its conflict markers in the file, and Python can't parse them."},
-    {"id": "r08", "bug": "timezone-bug", "text": "Checkout works all day. But every night between 12:00 and 5:30 AM, orders are stamped with yesterday's date.", "hint": "Look at the exact hours. What's special about 5:30?", "explain": "The server stores dates in UTC. India is 5:30 ahead, so just after midnight IST it's still yesterday in UTC."},
-    {"id": "r09", "bug": "null-pointer", "text": "The profile page crashes, but only for users who never uploaded a photo.", "hint": "What does the code get when there's no photo at all?", "explain": "The code reads photo.url without checking that a photo exists. Nothing there, crash."},
-    {"id": "r10", "bug": "memory-leak", "text": "The server is fast after a restart, a little slower every day, and crashes about once a week.", "hint": "Something builds up over time and never goes away.", "explain": "Something keeps growing and is never freed, until the server runs out of memory."},
-    {"id": "r11", "bug": "infinite-loop", "text": "One button pushes the CPU to 100% and the page never responds again.", "hint": "A frozen app with a busy CPU is doing something, forever.", "explain": "A loop whose exit condition never becomes true. The CPU spins forever."},
-    {"id": "r12", "bug": "regex-monster", "text": "The signup form rejects every email with a '+' in it, like ada+news@mail.com.", "hint": "Who decides which characters an email is allowed to contain?", "explain": "The validation regex only allows letters, digits and dots before the @. The Regex Monster strikes again."},
-    {"id": "r13", "bug": "race-condition", "text": "Two people bought the last concert ticket in the same second, and both got a confirmation.", "hint": "Both requests arrived at the same moment. Who checked first?", "explain": "Both requests checked 'tickets left?' before either one updated the count."},
-    {"id": "r14", "bug": "heisenbug", "text": "The bug happens every time in production. The moment you add print statements to investigate, it disappears.", "hint": "The bug changes when you observe it. Think physics.", "explain": "Debugging changes the timing, so the bug hides whenever you look. A true Heisenbug."},
-    {"id": "r15", "bug": "deadlock", "text": "The app froze. CPU at 0%, no errors, no crash. Two jobs are each waiting for the other to finish.", "hint": "Nothing is running, and everything is waiting.", "explain": "Each job holds a lock the other needs, so both wait forever. Deadlock."},
-    {"id": "r16", "bug": "works-on-my-machine", "text": "QA says the export button is broken. You click it on your laptop and it works perfectly, every single time.", "hint": "It works for exactly one person. Which one?", "explain": "Something on your laptop (a file, a setting, a version) doesn't exist anywhere else. The legendary bug."}
+    {
+      "id": "r01",
+      "bug": "typo",
+      "text": "The API answers 200 OK and the list is in the response, but the app always says 'No items found'. The app reads data.items. The server sends {\"itmes\": [...]}.",
+      "hint": "Compare the key the app reads with the key the server sends, letter by letter.",
+      "explain": "The server's key is spelled 'itmes', so data.items is undefined. One swapped pair of letters."
+    },
+    {
+      "id": "r02",
+      "bug": "missing-semicolon",
+      "text": "We glued all our JavaScript files into one bundle. Now the page crashes with 'TypeError: ... is not a function', exactly where one file ends and the next file starts with '('.",
+      "hint": "When two files are joined, how does JavaScript know where the first file's last statement ends?",
+      "explain": "The first file's last line had no semicolon, so JavaScript read the next file's '(' as a call on it."
+    },
+    {
+      "id": "r03",
+      "bug": "trailing-whitespace",
+      "text": "A CSV import marks 'Mumbai' as an unknown city on 40 rows but accepts it on the other 900. In the spreadsheet, every one of those cells looks exactly the same.",
+      "hint": "If you can't see the difference, maybe the difference can't be seen.",
+      "explain": "Those 40 cells have a space after 'Mumbai'. The check never strips it, so 'Mumbai ' isn't 'Mumbai'."
+    },
+    {
+      "id": "r04",
+      "bug": "unclosed-bracket",
+      "text": "After a small edit, app.js won't load. The browser says 'SyntaxError: Unexpected end of input' and points at the very last line of the file, a line nobody touched.",
+      "hint": "The parser reached the end of the file while still expecting something. What could still be open?",
+      "explain": "Something opened in the edit (a { or a ( ) was never closed, so the parser hit the end of the file still waiting for it."
+    },
+    {
+      "id": "r05",
+      "bug": "off-by-one",
+      "text": "Our export fetches customers 50 per page. With 1,000 customers it writes 980 rows, and the missing ones are always the last customer of each page.",
+      "hint": "1,000 customers is 20 pages. How many go missing per page?",
+      "explain": "Each page is cut one item short (say, slicing to 49 instead of 50), so 20 pages lose 20 customers."
+    },
+    {
+      "id": "r06",
+      "bug": "flaky-test",
+      "text": "CI went red on a pull request that only fixed a typo in the README. Someone pressed 'Re-run' without changing anything, and it went green.",
+      "hint": "A README can't break the code. So what was different between the two runs?",
+      "explain": "Nothing changed between the runs, so a test is passing or failing by chance, usually through timing or test order."
+    },
+    {
+      "id": "r07",
+      "bug": "merge-conflict",
+      "text": "Two branches each passed CI on their own. After merging both, the app runs without a single error, but every order now gets the 10% discount twice.",
+      "hint": "Each branch was right alone. What happened when Git put them together?",
+      "explain": "Both branches added the discount in different places. Git saw no overlapping lines, so the merge 'succeeded', but the code now conflicts with itself."
+    },
+    {
+      "id": "r08",
+      "bug": "timezone-bug",
+      "text": "Our 'orders today' counter resets to zero at 5:30 every morning instead of at midnight. The shop is in India.",
+      "hint": "When it's 5:30 AM in India, what time is it somewhere that matters to servers?",
+      "explain": "The counter resets at midnight UTC, which is 5:30 AM in India (UTC+5:30)."
+    },
+    {
+      "id": "r09",
+      "bug": "null-pointer",
+      "text": "Checkout fails for some shoppers. People who are logged in never hit it, and it stops happening as soon as a shopper creates an account.",
+      "hint": "What does the code find when it looks up the account of someone who doesn't have one?",
+      "explain": "Guests have no account, so the customer is null and the code reads a field from nothing."
+    },
+    {
+      "id": "r10",
+      "bug": "memory-leak",
+      "text": "Our dashboard tab uses 80 MB when it opens. Left open over the weekend it's at 3 GB, even though nobody touched it. A chart on it refreshes every 10 seconds.",
+      "hint": "Nobody clicked anything, yet something grows every 10 seconds. What does each refresh leave behind?",
+      "explain": "Each refresh keeps old data (or adds a listener) that's never released, so memory only grows."
+    },
+    {
+      "id": "r11",
+      "bug": "infinite-loop",
+      "text": "A job that 'retries the upload until it succeeds' has been running for 9 hours at full CPU. The server it uploads to was shut down last week.",
+      "hint": "When can 'until it succeeds' end, if success is no longer possible?",
+      "explain": "Its only way out is success, which can't happen now, so the loop never ends. It needs a retry limit."
+    },
+    {
+      "id": "r12",
+      "bug": "regex-monster",
+      "text": "Typing 30 'a' characters and then '!' into the username field keeps the server's CPU at 100% for over a minute, and then the name is rejected. Shorter bad names are rejected instantly.",
+      "hint": "It does finish, eventually. What kind of check gets dramatically slower with every extra character?",
+      "explain": "The username pattern backtracks: each extra 'a' roughly doubles the work before it can say no (ReDoS)."
+    },
+    {
+      "id": "r13",
+      "bug": "race-condition",
+      "text": "The like counter on a viral post says 9,812, but the likes table has 10,000 rows for that post. On quiet posts the two numbers always match.",
+      "hint": "What happens on a viral post that never happens on a quiet one?",
+      "explain": "Two requests read the count at the same moment, both add 1 and both save, so one like is lost."
+    },
+    {
+      "id": "r14",
+      "bug": "heisenbug",
+      "text": "A crash happens every time in the release build. Run the debug build with the exact same input, or step through it in a debugger, and it never happens.",
+      "hint": "What do debug builds and debuggers change, besides letting you look?",
+      "explain": "Looking changes the timing and memory layout, so the bug hides whenever you watch it."
+    },
+    {
+      "id": "r15",
+      "bug": "deadlock",
+      "text": "Two threads in our app: one locks the orders cache and then the customers cache, the other locks customers and then orders. About once a month the app just stops responding: 0% CPU, no errors, nothing in the logs.",
+      "hint": "0% CPU means nothing is working. What is each thread waiting for?",
+      "explain": "Each thread holds the lock the other one needs next, so both wait for each other forever."
+    },
+    {
+      "id": "r16",
+      "bug": "works-on-my-machine",
+      "text": "QA says the PDF export is broken on the test server. On your laptop it works every time, with the same data.",
+      "hint": "It works for exactly one person.",
+      "explain": "Something only your laptop has (a file, a font, a setting) is missing everywhere else."
+    }
   ],
   "code": [
-    {"id": "c01", "bug": "typo", "lang": "python", "lines": ["def greet(name):", "    message = f\"Hello, {name}!\"", "    return mesage"], "answer": [3], "hint": "Compare every variable name with where it was created.", "explain": "`mesage` is a typo for `message`, so Python raises NameError."},
-    {"id": "c02", "bug": "missing-semicolon", "lang": "javascript", "lines": ["const price = 100;", "const qty = 2;", "const total = price * qty", "[discount, tax].forEach(apply);"], "answer": [3], "hint": "JavaScript sometimes joins two lines into one.", "explain": "Without a semicolon, JavaScript reads lines 3 and 4 as `qty[discount, tax].forEach(...)`."},
-    {"id": "c03", "bug": "trailing-whitespace", "lang": "python", "lines": ["code = input(\"Coupon: \")", "valid = [\"SAVE10\", \"WELCOME\"]", "if code.upper() in valid:", "    apply_discount()"], "answer": [1, 3], "hint": "What if someone pastes 'SAVE10 ' with a space at the end?", "explain": "The input is never `.strip()`-ed, so a pasted 'SAVE10 ' with a trailing space is rejected."},
-    {"id": "c04", "bug": "unclosed-bracket", "lang": "javascript", "lines": ["function sum(list) {", "  let total = 0;", "  for (const n of list) {", "    total += n;", "  return total;", "}"], "answer": [4, 5], "hint": "Count the opening and closing braces.", "explain": "The `for` loop's `{` is never closed. A `}` is missing after line 4."},
-    {"id": "c05", "bug": "off-by-one", "lang": "python", "lines": ["def average(scores):", "    total = 0", "    for i in range(1, len(scores)):", "        total += scores[i]", "    return total / len(scores)"], "answer": [3], "hint": "Look closely at where the loop starts.", "explain": "`range(1, …)` skips the first score, so the average comes out too low."},
-    {"id": "c06", "bug": "flaky-test", "lang": "python", "lines": ["import time", "def test_cache_expires():", "    cache.set(\"k\", 1, ttl=1)", "    time.sleep(1)", "    assert cache.get(\"k\") is None"], "answer": [4], "hint": "Is waiting exactly as long as the timeout always enough?", "explain": "Sleeping exactly 1 second races the 1-second TTL. Sometimes the key hasn't expired yet."},
-    {"id": "c07", "bug": "merge-conflict", "lang": "python", "lines": ["TIMEOUT = 30", "<<<<<<< HEAD", "RETRIES = 3", "=======", "RETRIES = 5", ">>>>>>> feature/retry"], "answer": [2, 4, 6], "hint": "Some of these lines weren't written by a person.", "explain": "Git's conflict markers were committed, and Python can't parse them. Keep one RETRIES line and delete the markers."},
-    {"id": "c08", "bug": "timezone-bug", "lang": "python", "lines": ["from datetime import datetime", "def is_store_open():", "    now = datetime.utcnow()", "    return 9 <= now.hour < 21"], "answer": [3], "hint": "The store is in India. Which clock is the code reading?", "explain": "`utcnow()` gives UTC, but the store's hours are in IST, so it 'opens' at 2:30 PM local time."},
-    {"id": "c09", "bug": "null-pointer", "lang": "javascript", "lines": ["function avatarUrl(user) {", "  return user.photo.url;", "}", "avatarUrl({ name: \"Ada\", photo: null });"], "answer": [2], "hint": "What happens when there's no photo?", "explain": "`user.photo` is null, so `.url` throws. `user.photo?.url` would be safe."},
-    {"id": "c10", "bug": "memory-leak", "lang": "python", "lines": ["seen = []", "def handle(request):", "    seen.append(request)", "    return respond(request)"], "answer": [1, 3], "hint": "What happens to that list after a million requests?", "explain": "Every request is kept in a global list forever, so memory only ever grows."},
-    {"id": "c11", "bug": "infinite-loop", "lang": "javascript", "lines": ["let i = 10;", "while (i > 0) {", "  console.log(i);", "  i++;", "}"], "answer": [4], "hint": "Which way is i moving?", "explain": "`i++` moves away from 0, so `i > 0` stays true forever. It should be `i--`."},
-    {"id": "c12", "bug": "regex-monster", "lang": "python", "lines": ["import re", "def is_valid_price(text):", "    return re.fullmatch(r\"\\d+.\\d{2}\", text) is not None", "is_valid_price(\"12a50\")  # True?!"], "answer": [3], "hint": "In a regex, what does a bare dot match?", "explain": "The unescaped `.` matches any character, so '12a50' passes. It should be `\\.`."},
-    {"id": "c13", "bug": "race-condition", "lang": "python", "lines": ["def buy(ticket_id, user):", "    ticket = db.get(ticket_id)", "    if ticket.available:", "        ticket.available = False", "        ticket.owner = user", "        db.save(ticket)"], "answer": [2, 3], "hint": "Two buyers run this at the same moment. What do they both read?", "explain": "Both requests can read `available = True` before either one saves. The check and the update must happen atomically."},
-    {"id": "c14", "bug": "heisenbug", "lang": "python", "lines": ["results = []", "fetch_async(url, callback=results.append)", "# print(\"waiting...\")  <- uncomment and it works", "process(results[0])"], "answer": [4], "hint": "Why would adding a slow print 'fix' it?", "explain": "Line 4 reads the result before the async fetch finishes. A slow print gives it just enough time, so debugging hides the bug."},
-    {"id": "c15", "bug": "deadlock", "lang": "python", "lines": ["def transfer(a, b, amount):", "    with a.lock:", "        with b.lock:", "            a.balance -= amount", "            b.balance += amount", "# transfer(x, y) and transfer(y, x) run at once"], "answer": [2, 3], "hint": "Follow the order each call takes its locks.", "explain": "One call locks x then y, the other y then x, and each waits for the other forever. Always take locks in a fixed order."},
-    {"id": "c16", "bug": "works-on-my-machine", "lang": "python", "lines": ["import json", "def load_settings():", "    path = \"C:/Users/sambhav/settings.json\"", "    with open(path) as f:", "        return json.load(f)"], "answer": [3], "hint": "Does that file exist on anyone else's computer?", "explain": "A hard-coded path that only exists on one laptop. Everyone else gets FileNotFoundError."}
+    {
+      "id": "c01",
+      "bug": "typo",
+      "lang": "python",
+      "lines": [
+        "def checkout(order, coupon):",
+        "    total = order.subtotal + order.shipping",
+        "    if coupon and coupon.is_valid():",
+        "        total = total - coupon.amount",
+        "    if order.gift_wrap:",
+        "        totl = total + 30",
+        "    return round(total, 2)"
+      ],
+      "answer": [
+        6
+      ],
+      "hint": "No error is raised, yet one charge never reaches the total. Check every name that gets assigned.",
+      "explain": "`totl` is a typo, so gift wrap creates a new variable and the 30 is never added to `total`."
+    },
+    {
+      "id": "c02",
+      "bug": "missing-semicolon",
+      "lang": "javascript",
+      "lines": [
+        "const user = getUser()",
+        "const greeting = \"Hi, \" + user.name",
+        "(async () => {",
+        "  await sendWelcome(user, greeting)",
+        "})()"
+      ],
+      "answer": [
+        2
+      ],
+      "hint": "No line has a semicolon, but only one gap matters. Which line starts with something that could continue the line above it?",
+      "explain": "Line 3 starts with `(`, so JavaScript reads lines 2-3 as `user.name(async () => ...)` and calls a string. Line 2 needs a semicolon."
+    },
+    {
+      "id": "c03",
+      "bug": "trailing-whitespace",
+      "lang": "python",
+      "lines": [
+        "def load_allowed(path):",
+        "    with open(path) as f:",
+        "        return f.read().split(\"\\n\")",
+        "",
+        "allowed = load_allowed(\"allowed_users.txt\")",
+        "if username in allowed:",
+        "    grant_access(username)"
+      ],
+      "answer": [
+        3
+      ],
+      "hint": "Picture each item in the list exactly, including anything you can't see at the end of a name.",
+      "explain": "`split(\"\\n\")` keeps whatever follows each name on its line, so 'bob ' with a trailing space never equals 'bob'. Strip each line."
+    },
+    {
+      "id": "c04",
+      "bug": "unclosed-bracket",
+      "lang": "javascript",
+      "lines": [
+        "function isEligible(user) {",
+        "  const adult = user.age >= 18;",
+        "  const region = [\"IN\", \"US\"].includes(user.country);",
+        "  return (adult && (region || user.isAdmin);",
+        "}",
+        "console.log(isEligible({ age: 20, country: \"IN\" }));"
+      ],
+      "answer": [
+        4
+      ],
+      "hint": "Count the ( and ) on every line.",
+      "explain": "Line 4 opens two parentheses and closes only one."
+    },
+    {
+      "id": "c05",
+      "bug": "off-by-one",
+      "lang": "python",
+      "lines": [
+        "def paginate(items, page, size=10):",
+        "    \"\"\"Pages are numbered from 1.\"\"\"",
+        "    start = page * size",
+        "    end = start + size",
+        "    return items[start:end]"
+      ],
+      "answer": [
+        3
+      ],
+      "hint": "Work out what page 1 returns with size=10.",
+      "explain": "Pages start at 1, so page 1 should start at index 0. `page * size` skips the whole first page; it should be `(page - 1) * size`."
+    },
+    {
+      "id": "c06",
+      "bug": "flaky-test",
+      "lang": "python",
+      "lines": [
+        "def recent_orders():",
+        "    return sorted(db.orders, key=lambda o: o.created_at, reverse=True)",
+        "",
+        "def test_newest_first():",
+        "    a = create_order()   # created_at = now()",
+        "    b = create_order()   # created_at = now()",
+        "    assert recent_orders() == [b, a]"
+      ],
+      "answer": [
+        2,
+        7
+      ],
+      "hint": "How far apart in time are a and b created? What if the clock gives them the same value?",
+      "explain": "a and b are created in the same instant, so they often share a timestamp. Then the sort is a tie, and the test passes or fails by luck."
+    },
+    {
+      "id": "c07",
+      "bug": "merge-conflict",
+      "lang": "python",
+      "lines": [
+        "# settings.py, right after merging feature/retries into main",
+        "DEFAULTS = {",
+        "    \"timeout\": 30,",
+        "    \"retries\": 3,",
+        "    \"region\": \"ap-south-1\",",
+        "    \"retries\": 5,",
+        "    \"debug\": False,",
+        "}"
+      ],
+      "answer": [
+        4,
+        6
+      ],
+      "hint": "Both branches changed the same setting, and the merge kept both. Does Python complain?",
+      "explain": "The merge kept both sides' `retries` line. Python silently keeps the last one, so one branch's change is lost with no error."
+    },
+    {
+      "id": "c08",
+      "bug": "timezone-bug",
+      "lang": "python",
+      "lines": [
+        "from datetime import datetime",
+        "",
+        "def is_expired(token):",
+        "    # token.expires_at is saved in UTC",
+        "    return datetime.now() > token.expires_at",
+        "",
+        "# the server's clock is set to India time (UTC+5:30)"
+      ],
+      "answer": [
+        5
+      ],
+      "hint": "Which clock does each side of the > use?",
+      "explain": "`datetime.now()` is India time but `expires_at` is UTC, so every token expires 5.5 hours early. Use `datetime.now(timezone.utc)`."
+    },
+    {
+      "id": "c09",
+      "bug": "null-pointer",
+      "lang": "javascript",
+      "lines": [
+        "// guests can check out without an account",
+        "async function receiptEmail(orderId) {",
+        "  const order = await db.orders.get(orderId);",
+        "  const to = order.customer.email || order.guestEmail;",
+        "  return send(to, renderReceipt(order));",
+        "}"
+      ],
+      "answer": [
+        4
+      ],
+      "hint": "Run line 4 for a guest's order, one piece at a time, left to right.",
+      "explain": "For a guest, `order.customer` is null, so `order.customer.email` throws before the `||` fallback ever runs. Use `order.customer?.email`."
+    },
+    {
+      "id": "c10",
+      "bug": "memory-leak",
+      "lang": "javascript",
+      "lines": [
+        "const readings = [];",
+        "function startLiveChart(el) {",
+        "  setInterval(async () => {",
+        "    const points = await fetchPoints();",
+        "    readings.push(...points);",
+        "    draw(el, readings.slice(-100));",
+        "  }, 10000);",
+        "}"
+      ],
+      "answer": [
+        5
+      ],
+      "hint": "The chart only ever shows 100 points. How many does it keep?",
+      "explain": "Every refresh adds to `readings` and nothing is ever removed. The chart draws the last 100, but memory keeps growing."
+    },
+    {
+      "id": "c11",
+      "bug": "infinite-loop",
+      "lang": "python",
+      "lines": [
+        "def first_at_least(nums, target):",
+        "    lo, hi = 0, len(nums) - 1",
+        "    while lo < hi:",
+        "        mid = (lo + hi) // 2",
+        "        if nums[mid] < target:",
+        "            lo = mid",
+        "        else:",
+        "            hi = mid",
+        "    return lo"
+      ],
+      "answer": [
+        6
+      ],
+      "hint": "Try nums = [1, 5] and target = 5. Do lo and hi ever meet?",
+      "explain": "When hi = lo + 1, mid equals lo, so `lo = mid` changes nothing and the loop never ends. It must be `lo = mid + 1`."
+    },
+    {
+      "id": "c12",
+      "bug": "regex-monster",
+      "lang": "python",
+      "lines": [
+        "import re",
+        "PHONE = re.compile(r\"^\\+?\\d{10,12}$\")",
+        "PRICE = re.compile(r\"^\\d+.\\d{2}$\")",
+        "EMAIL = re.compile(r\"^[^@\\s]+@[^@\\s]+\\.[A-Za-z]{2,}$\")",
+        "",
+        "def valid_price(text):",
+        "    return bool(PRICE.match(text))",
+        "",
+        "valid_price(\"12a50\")  # returns True?!"
+      ],
+      "answer": [
+        3
+      ],
+      "hint": "Only one pattern matters for '12a50'. Which part of it was meant to match only a dot?",
+      "explain": "An unescaped `.` matches any character, so '12a50' looks like a price. It should be `\\.`."
+    },
+    {
+      "id": "c13",
+      "bug": "race-condition",
+      "lang": "python",
+      "lines": [
+        "def withdraw(account_id, amount):",
+        "    acct = db.get(account_id)",
+        "    if acct.balance < amount:",
+        "        raise InsufficientFunds()",
+        "    acct.balance -= amount",
+        "    db.save(acct)",
+        "",
+        "# two ATMs call withdraw(42, 500) at the same moment.",
+        "# balance was 600; now it's 100, and 1,000 was paid out."
+      ],
+      "answer": [
+        3,
+        5
+      ],
+      "hint": "Walk both calls through side by side. Which decision do they both make from the same old number?",
+      "explain": "Both calls read 600, both pass the check, and both save 100. The check and the update must happen as one step (a lock or an atomic update)."
+    },
+    {
+      "id": "c14",
+      "bug": "heisenbug",
+      "lang": "javascript",
+      "lines": [
+        "let config;",
+        "loadConfig().then((c) => { config = c; });",
+        "",
+        "// the config usually arrives within a few ms",
+        "setTimeout(() => render(config.theme), 50);",
+        "",
+        "// fails for some users in production,",
+        "// but never while you step through it in the debugger"
+      ],
+      "answer": [
+        5
+      ],
+      "hint": "Is 50 milliseconds always enough for a network request? And what does pausing in a debugger give it?",
+      "explain": "It guesses the config arrives within 50 ms. On a slow network it doesn't, so `config` is still undefined. Pausing in the debugger gives the request time to finish, so the bug vanishes whenever you look. Render inside `.then` instead."
+    },
+    {
+      "id": "c15",
+      "bug": "deadlock",
+      "lang": "python",
+      "lines": [
+        "import threading",
+        "lock = threading.Lock()",
+        "def update_total(cart):",
+        "    with lock:",
+        "        cart.total = sum(i.price for i in cart.items)",
+        "def add_item(cart, item):",
+        "    with lock:",
+        "        cart.items.append(item)",
+        "        update_total(cart)"
+      ],
+      "answer": [
+        9
+      ],
+      "hint": "Follow a single call to add_item. How many times does it try to take the same lock?",
+      "explain": "add_item holds `lock`, then update_total waits for that same lock. A plain Lock can't be taken twice, even by one thread, so it waits for itself forever."
+    },
+    {
+      "id": "c16",
+      "bug": "works-on-my-machine",
+      "lang": "python",
+      "lines": [
+        "from pathlib import Path",
+        "",
+        "TEMPLATES = Path(__file__).parent / \"templates\"",
+        "",
+        "def render_invoice(order):",
+        "    html = (TEMPLATES / \"Invoice.html\").read_text()",
+        "    return html.replace(\"{{name}}\", order[\"name\"])",
+        "",
+        "# repo: templates/invoice.html. Works on every laptop, fails on the Linux server."
+      ],
+      "answer": [
+        6
+      ],
+      "hint": "Compare the file name in the code with the one in the repo. Which systems care about the difference?",
+      "explain": "macOS and Windows ignore letter case in file names; Linux doesn't. 'Invoice.html' is found on every laptop, but the server only has 'invoice.html'."
+    }
   ]
 }

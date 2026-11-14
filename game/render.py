@@ -1,6 +1,7 @@
 """Bug Hunt: turn leaderboard state into README markdown and issue replies (pure functions)."""
 from __future__ import annotations
 
+import re
 from datetime import datetime
 
 from . import engine
@@ -30,6 +31,9 @@ def _date(iso: str) -> str:
 
 
 # ------------------------------------------------------------------ README section
+TILE = 84  # Bugdex tile width in px
+
+
 def bugdex_table(state: dict, data: dict, per_row: int = 4) -> str:
     rarities = data["rarities"]
     cells = []
@@ -37,31 +41,42 @@ def bugdex_table(state: dict, data: dict, per_row: int = 4) -> str:
         n = state["counts"].get(bug["id"], 0)
         rarity = rarities[bug["rarity"]]["label"]
         if n:
-            img = _pic(f"game/art/{bug['id']}-light.svg", f"game/art/{bug['id']}-dark.svg", 112, bug["name"])
+            img = _pic(f"game/art/{bug['id']}-light.svg", f"game/art/{bug['id']}-dark.svg", TILE, bug["name"])
             caption = f"<sub><b>{bug['name']}</b></sub><br><sub>{rarity} · ×{n}</sub>"
         else:
             img = _pic(f"game/art/unknown-{bug['rarity']}-light.svg", f"game/art/unknown-{bug['rarity']}-dark.svg",
-                       112, "Undiscovered bug")
-            caption = f"<sub><b>???</b></sub><br><sub>{rarity} · not caught yet</sub>"
+                       TILE, "Undiscovered bug")
+            caption = f"<sub><b>???</b></sub><br><sub>{rarity}</sub>"
         cells.append(f'<td align="center" width="{100 // per_row}%">{img}<br>{caption}</td>')
     rows = ["<tr>" + "".join(cells[i:i + per_row]) + "</tr>" for i in range(0, len(cells), per_row)]
     return '<table align="center">\n' + "\n".join(rows) + "\n</table>"
 
 
+def _half_width(lines: list[str]) -> int:
+    """Pixel width for each leaderboard half: fits the longest visible line, the same for both halves.
+
+    Capped so the two halves still sit side by side in GitHub's README column (~800 px)."""
+    longest = max((len(re.sub(r"<[^>]+>", "", line)) for line in lines), default=0)
+    return min(380, max(280, round(longest * 8 + 30)))
+
+
 def side_tables(state: dict, data: dict) -> str:
+    """Top hunters + latest catches: its own table, two equal halves sized to the text."""
     by_id = {b["id"]: b for b in data["bugs"]}
     rarities = data["rarities"]
     medals = ["🥇", "🥈", "🥉", "4.", "5."]
-    top = "<br>".join(
+    top_lines = [
         f'{medals[i]} <a href="https://github.com/{login}">@{login}</a> · <b>{h["points"]}</b> pts · {h["catches"]} caught'
-        for i, (login, h) in enumerate(engine.leaderboard(state, 5)))
-    recent = "<br>".join(
-        f'{rarities[by_id[r["bug"]]["rarity"]]["emoji"]} <a href="https://github.com/{r["login"]}">@{r["login"]}</a> '
-        f'caught <b>{by_id[r["bug"]]["name"]}</b> <sub>{_date(r["at"])}</sub>'
-        for r in state["recent"][:5] if r["bug"] in by_id)
+        for i, (login, h) in enumerate(engine.leaderboard(state, 5))]
+    recent_lines = [
+        f'{rarities[by_id[r["bug"]]["rarity"]]["emoji"]} <b>{by_id[r["bug"]]["name"]}</b> · '
+        f'<a href="https://github.com/{r["login"]}">@{r["login"]}</a> · {_date(r["at"])}'
+        for r in state["recent"][:5] if r["bug"] in by_id]
+    top, recent = "<br>".join(top_lines), "<br>".join(recent_lines)
+    w = _half_width(top_lines + recent_lines)
     return ('<table align="center"><tr>'
-            f'<td valign="top" width="50%"><b>🏆 Top hunters</b><br><br>{top}</td>'
-            f'<td valign="top" width="50%"><b>🕘 Latest catches</b><br><br>{recent}</td>'
+            f'<td valign="top" width="{w}"><b>🏆 Top hunters</b><br><br>{top}</td>'
+            f'<td valign="top" width="{w}"><b>🕘 Latest catches</b><br><br>{recent}</td>'
             '</tr></table>')
 
 
@@ -102,34 +117,36 @@ BACK = f"[See the leaderboard →]({BOARD_URL}) · [Play again]({GAME_URL})"
 
 
 def reply_recorded(result: dict, data: dict) -> str:
-    bug = result["bug"]
-    rarity = data["rarities"][bug["rarity"]]
+    recorded = result["recorded"]
     h = result["hunter"]
-    extras = []
-    if result["mode"] == "code":
-        extras.append("double points for code")
-    if result["first_ever"]:
-        extras.append(f"+{engine.DISCOVERER_BONUS} for the first catch on the board")
-    lines = [
-        f"## 🏆 You're on the board! **{bug['name']}** recorded",
-        "",
-        f'<img src="{RAW_BASE}/game/art/{bug["id"]}-light.svg" width="140" alt="{bug["name"]}">',
-        "",
-        f"{rarity['emoji']} **{rarity['label']}** · **+{result['points']} pts**" + (f" ({', '.join(extras)})" if extras else ""),
-        "",
-    ]
-    if result["first_ever"]:
-        lines += ["✨ **First ever on the board!** It's now unlocked in the profile's Bugdex.", ""]
-    lines += [f"Your totals on the board: **{h['catches']}** caught · **{h['points']}** pts.", "", BACK]
+    if len(recorded) == 1:
+        title = f"## 🏆 You're on the board! **{recorded[0]['bug']['name']}** recorded"
+    else:
+        title = f"## 🏆 You're on the board! **{len(recorded)} catches** recorded"
+    lines = [title, ""]
+    for r in recorded:
+        bug = r["bug"]
+        rarity = data["rarities"][bug["rarity"]]
+        how = "code, double points" if r["mode"] == "code" else "bug report"
+        new = " · ✨ first ever on the board" if r["first_ever"] else ""
+        lines.append(f"- {rarity['emoji']} **{bug['name']}** ({rarity['label']}, {how}) · **+{r['points']} pts**{new}")
+    lines.append("")
+    skipped = len(result["results"]) - len(recorded)
+    if any(r["status"] == "limit" for r in result["results"]):
+        lines += [f"😴 {skipped} more didn't fit: the limit is {engine.DAILY_LIMIT} catches a day (UTC).", ""]
+    elif skipped:
+        lines += [f"🤔 Skipped {skipped} that {'isn' if skipped == 1 else 'aren'}'t in the Bugdex.", ""]
+    lines += [f"**+{result['points']} pts** this time. Your totals on the board: **{h['catches']}** caught · "
+              f"**{h['points']}** pts.", "", BACK]
     return "\n".join(lines)
 
 
 def reply_unknown_bug() -> str:
-    return f"🤔 That bug isn't in the Bugdex. Use the **Add me to the leaderboard** button in the game.\n\n{BACK}"
+    return f"🤔 That bug isn't in the Bugdex. Use the **Add to the leaderboard** button in the game.\n\n{BACK}"
 
 
 def reply_limit(result: dict) -> str:
-    return f"😴 You've added {result['limit']} catches today (UTC). Come back tomorrow!\n\n{BACK}"
+    return f"😴 You've added {engine.DAILY_LIMIT} catches today (UTC). Come back tomorrow!\n\n{BACK}"
 
 
 def reply_legacy() -> str:

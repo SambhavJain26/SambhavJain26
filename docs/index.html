@@ -6,114 +6,192 @@
 <title>Bug Hunt · Sambhav Jain</title>
 <meta name="description" content="A tiny game: luck finds the bug, skill catches it. 16 bugs, from the humble Typo to the legendary Works on My Machine.">
 <link rel="icon" href="art/typo-light.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap">
 <style>
 @font-face{font-family:"Instrument Serif";src:url(fonts/InstrumentSerif-Regular.ttf) format("truetype");font-display:swap}
 @font-face{font-family:"Instrument Serif";font-style:italic;src:url(fonts/InstrumentSerif-Italic.ttf) format("truetype");font-display:swap}
 :root{--paper:#fafaf9;--ink:#191a1c;--muted:#62636a;--rule:#dededb;--soft:#f0f0ed;--card:#fff;--red:#e6243f;--blue:#145cff;--dot:#c6cad1;--btn:#191a1c;--btnfg:#fafaf9;
-  --serif:"Instrument Serif",Georgia,serif;--sans:"IBM Plex Sans","Segoe UI",system-ui,-apple-system,sans-serif;--mono:"IBM Plex Mono",Consolas,ui-monospace,monospace}
-@media (prefers-color-scheme:dark){:root{--paper:#14161b;--ink:#f2f2f0;--muted:#b5b9c3;--rule:#373b45;--soft:#22262f;--card:#191c23;--red:#ed4056;--blue:#497dff;--dot:#4a505d;--btn:#f2f2f0;--btnfg:#14161b}}
+  --serif:"Instrument Serif",Georgia,serif;--sans:"IBM Plex Sans","Segoe UI",system-ui,-apple-system,sans-serif;--mono:"IBM Plex Mono","Cascadia Code",Consolas,ui-monospace,monospace;
+  /* editor colours (VS Code Light+) */
+  --ed-bg:#ffffff;--ed-gutter:#f3f3f1;--ed-ln:#8a8f98;--ed-text:#1f1f1f;
+  --tk-kw:#0000ff;--tk-ctl:#af00db;--tk-str:#a31515;--tk-com:#008000;--tk-num:#098658;--tk-fn:#795e26;--tk-type:#267f99;--tk-var:#001080;
+  /* portfolio dot grid + header pill (measured on jainsambhav.com) */
+  --dots:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Crect x='7' y='7' width='2' height='2' fill='rgb(198,202,210)' fill-opacity='.4'/%3E%3C/svg%3E");
+  --pill-font:"Poppins","Segoe UI",system-ui,sans-serif;--pill-bg:rgba(255,255,255,.14);--pill-line:rgba(25,26,28,.13);
+  --pill-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 3px 16px rgba(0,0,0,.06)}
+@media (prefers-color-scheme:dark){:root{--paper:#14161b;--ink:#f2f2f0;--muted:#b5b9c3;--rule:#373b45;--soft:#22262f;--card:#191c23;--red:#ed4056;--blue:#497dff;--dot:#4a505d;--btn:#f2f2f0;--btnfg:#14161b;
+  /* VS Code Dark+ */
+  --ed-bg:#1e1e1e;--ed-gutter:#252526;--ed-ln:#858585;--ed-text:#d4d4d4;
+  --tk-kw:#569cd6;--tk-ctl:#c586c0;--tk-str:#ce9178;--tk-com:#6a9955;--tk-num:#b5cea8;--tk-fn:#dcdcaa;--tk-type:#4ec9b0;--tk-var:#9cdcfe;
+  --dots:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Crect x='7' y='7' width='2' height='2' fill='rgb(75,80,92)' fill-opacity='.4'/%3E%3C/svg%3E");
+  --pill-bg:rgba(32,36,45,.14);--pill-line:rgba(205,215,240,.19);
+  --pill-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 3px 16px rgba(0,0,0,.23)}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--sans);
-  background-image:radial-gradient(var(--dot) 1px,transparent 1.2px);background-size:22px 22px}
+/* dot grid copied from jainsambhav.com: 2px squares every 16px, 40% opacity */
+body{margin:0;min-height:100vh;color:var(--ink);font:15px/1.5 var(--sans);
+  background:var(--dots) 0 0/16px 16px repeat fixed,var(--paper)}
 a{color:inherit}
-.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 0}
-.mono{font:32px/1 var(--serif);text-decoration:none}.mono i{color:var(--red);font-style:normal}
-.back{font-size:14px;border:1px solid var(--rule);background:var(--card);border-radius:999px;padding:7px 16px;text-decoration:none}
-.back:hover{border-color:var(--muted)}
-.hero{text-align:center;padding:12px 0 22px}
-.hero h1{font:400 clamp(48px,9vw,88px)/1 var(--serif);margin:0}.hero h1 em{font-style:italic}
-.hero p{color:var(--muted);margin:10px 0 0}
-.grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:20px;align-items:start;padding-bottom:40px}
-@media (max-width:820px){.grid{grid-template-columns:1fr}}
-.card{background:var(--card);border:1px solid var(--rule);border-radius:20px;padding:22px}
-#stage{min-height:380px;display:flex;flex-direction:column;justify-content:center}
-.kicker{font:600 12px var(--sans);letter-spacing:2.6px;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
-.muted{color:var(--muted)}.small{font-size:13px}
-.idle{text-align:center}
 button{font:inherit;color:inherit;cursor:pointer}
-.catch{display:inline-flex;align-items:center;gap:12px;background:var(--btn);color:var(--btnfg);border:0;border-radius:999px;padding:16px 34px;font:400 30px var(--serif);margin:10px 0 14px;transition:transform .15s}
+.app{max-width:1228px;margin:0 auto;padding:12px 24px 16px}
+
+/* header: same sizes as the jainsambhav.com header */
+header{height:72px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.mono{display:inline-flex;align-items:baseline;gap:2px;font:40px/1 var(--serif);text-decoration:none}
+.mono i{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--red)}
+.back{display:inline-flex;align-items:center;gap:9px;min-height:44px;padding:8px 16px;border-radius:999px;font:14px/1.2 var(--pill-font);text-decoration:none;white-space:nowrap;
+  background:var(--pill-bg);border:1px solid var(--pill-line);box-shadow:var(--pill-shadow);transition:transform .15s}
+.back:hover{transform:translateY(-1px)}
+.back svg{flex:none}
+
+/* left: title, then the catch box · right: the whole Bugdex */
+main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;align-items:start;margin-top:32px}
+.left{display:flex;flex-direction:column;gap:18px;min-width:0}
+.title{text-align:center}
+.title h1{font:400 64px/1 var(--serif);margin:0;letter-spacing:-.5px}.title h1 em{font-style:italic}
+.title p{margin:10px auto 0;font-size:15px;color:var(--muted);max-width:480px}
+.card{background:var(--card);border:1px solid var(--rule);border-radius:18px;padding:22px 24px}
+#stage{min-height:240px;display:flex;flex-direction:column;justify-content:center}
+
+.kicker{font:600 11px var(--sans);letter-spacing:2.4px;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+.muted{color:var(--muted)}.small{font-size:13px}.tiny{font-size:12px;margin:6px 0 0}
+
+/* idle / rolling */
+.idle,.rolling{text-align:center;padding:12px 0}
+.idle p{margin:0;text-wrap:balance}
+.catch{display:inline-flex;align-items:center;gap:12px;background:var(--btn);color:var(--btnfg);border:0;border-radius:999px;padding:13px 30px;font:400 28px var(--serif);margin:14px 0 16px;transition:transform .15s}
 .catch:hover{transform:translateY(-2px)}.catch:active{transform:scale(.97)}
-.catch.small{font-size:22px;padding:10px 24px;margin:0}
-.net{font-size:24px}
-.slot{font:400 64px/1.1 var(--serif);color:var(--c,var(--ink));text-align:center;transition:color .1s}
-.rolling{text-align:center}
-.enc-head{display:flex;align-items:center;gap:16px;margin-bottom:14px}
-.enc-head h2{font:400 36px/1.1 var(--serif);margin:0}
-.mystery{width:84px;height:84px;flex:none}
-.rar{color:var(--c);font-weight:600}
-.enc-head .rar{font-weight:400}
-.tries{margin-left:auto;display:flex;gap:6px}.tries i{width:10px;height:10px;border-radius:50%;background:var(--rule)}.tries i.on{background:var(--red)}
-blockquote{margin:6px 0 14px;padding:12px 16px;border-left:3px solid var(--blue);background:var(--soft);border-radius:0 12px 12px 0;font:400 20px/1.4 var(--serif)}
-.q{font-weight:600;margin:6px 0 10px}
+.catch.small{font-size:20px;padding:9px 22px;margin:0}
+.net{font-size:22px}
+.slot{font:400 60px/1.1 var(--serif);color:var(--c,var(--ink));transition:color .1s}
+
+/* encounter header */
+.enc-head{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.enc-head h2{font:400 30px/1.05 var(--serif);margin:0}
+.enc-head .muted{margin:3px 0 0}
+.mystery{width:56px;height:56px;flex:none}
+.rar{color:var(--c);font-weight:600}.enc-head .rar{font-weight:400}
+.lock{display:inline-block;font-size:11px;font-weight:600;border:1px solid var(--rule);border-radius:999px;padding:0 8px;margin-left:6px;color:var(--muted)}
+.tries{margin-left:auto;display:flex;gap:6px;align-items:center}.tries i{width:10px;height:10px;border-radius:50%;background:var(--rule)}.tries i.on{background:var(--red)}
+
+/* the choice: a toggle between the two challenges */
+.toggle{display:inline-flex;gap:4px;padding:4px;background:var(--soft);border-radius:999px;margin-bottom:14px}
+.tab{display:inline-flex;align-items:baseline;gap:8px;border:0;background:none;border-radius:999px;padding:7px 16px;font-weight:600;color:var(--muted);transition:background .15s,color .15s}
+.tab small{font-weight:500;font-size:12px}
+.tab.on{background:var(--btn);color:var(--btnfg)}
+.tab:hover:not(:disabled):not(.on){color:var(--ink)}
+.tab:disabled{opacity:.45;cursor:not-allowed}
+.panel-note{margin:10px 0 0}
+.choice-go{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:18px}
+
+/* bug report: a ticket in the same monospace as the code */
+.ticket{border:1px solid var(--rule);border-radius:12px;overflow:hidden;background:var(--ed-bg);font:14px/1.6 var(--mono);color:var(--ed-text)}
+.ticket-head{display:flex;justify-content:space-between;gap:10px;padding:7px 14px;background:var(--ed-gutter);border-bottom:1px solid var(--rule);font-size:12px;color:var(--ed-ln)}
+.ticket-head b{color:var(--tk-kw);font-weight:600}
+.ticket-body{padding:12px 14px;white-space:pre-wrap}
+.q{font-weight:600;margin:16px 0 10px}
 .opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media (max-width:520px){.opts{grid-template-columns:1fr}}
-.opt{display:flex;gap:10px;align-items:center;text-align:left;background:var(--paper);border:1px solid var(--rule);border-radius:12px;padding:12px 14px;transition:border-color .15s,transform .1s}
-.opt b{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--soft);font-size:13px}
-.opt:hover:not(:disabled),.line:hover:not(:disabled){border-color:var(--ink)}
-.code{border:1px solid var(--rule);border-radius:12px;overflow:hidden;background:var(--paper)}
-.line{display:flex;width:100%;gap:12px;align-items:baseline;text-align:left;border:0;border-bottom:1px solid var(--rule);background:none;padding:7px 12px;font:14px/1.5 var(--mono)}
-.line:last-child{border-bottom:0}
-.line .ln{color:var(--muted);min-width:18px;text-align:right}
-.line code{white-space:pre;font:inherit;overflow-x:auto}
-.line:hover:not(:disabled){background:var(--soft)}
+.opt{display:flex;gap:10px;align-items:center;text-align:left;background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:11px 14px;transition:border-color .15s}
+.opt b{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--soft);font-size:13px;flex:none}
+.opt:hover:not(:disabled){border-color:var(--ink)}
+
+/* code: an editor with syntax colours */
+.code{border:1px solid var(--rule);border-radius:12px;overflow:hidden;background:var(--ed-bg);color:var(--ed-text)}
+.code .line{display:flex;width:100%;align-items:stretch;text-align:left;border:0;background:none;padding:0;font:13.5px/1.75 var(--mono);color:inherit}
+.code .ln{flex:none;width:40px;padding-right:12px;text-align:right;color:var(--ed-ln);background:var(--ed-gutter);user-select:none}
+.code code{flex:1;padding:0 14px;white-space:pre-wrap;overflow-wrap:anywhere;font:inherit}
+.code .line:first-child .ln,.code .line:first-child code{padding-top:6px}
+.code .line:last-child .ln,.code .line:last-child code{padding-bottom:6px}
+button.line:hover:not(:disabled) code{background:rgba(128,128,128,.14)}
+button.line:hover:not(:disabled) .ln{color:var(--ink)}
+.t-kw{color:var(--tk-kw)}.t-ctl{color:var(--tk-ctl)}.t-str{color:var(--tk-str)}.t-com{color:var(--tk-com);font-style:italic}
+.t-num{color:var(--tk-num)}.t-fn{color:var(--tk-fn)}.t-type{color:var(--tk-type)}
+/* show => and != as typed, never as joined arrows (after the font shorthands, which reset this) */
+.code code,.ticket-body{font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
 .nope{opacity:.4;text-decoration:line-through}
-.feedback{min-height:24px;margin:12px 0 0;color:var(--red)}
+.feedback{min-height:22px;margin:12px 0 0;color:var(--red)}
 .shake{animation:shake .4s}
 @keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
-.result{display:flex;gap:20px;align-items:flex-start}
-@media (max-width:520px){.result{flex-direction:column}}
-.result h2{font:400 40px/1.1 var(--serif);margin:0 0 6px}
-.caught-art{width:150px;height:150px;flex:none;animation:pop .5s cubic-bezier(.2,1.4,.4,1)}
+
+/* result */
+.result{display:flex;gap:22px;align-items:flex-start}
+.result h2{font:400 36px/1.1 var(--serif);margin:0 0 4px}
+.result p{margin:6px 0}
+.caught-art{width:120px;height:120px;flex:none;animation:pop .5s cubic-bezier(.2,1.4,.4,1)}
 @keyframes pop{from{transform:scale(.4) rotate(-12deg);opacity:0}to{transform:none;opacity:1}}
-.flavor{font:italic 400 19px/1.4 var(--serif);color:var(--muted);border-left:3px solid var(--rule);padding-left:12px}
-.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0 6px}
-.ghost{border:1px solid var(--rule);border-radius:999px;padding:10px 18px;text-decoration:none;font-size:15px;background:var(--card)}
-.ghost:hover{border-color:var(--ink)}
+.flavor{font:italic 400 18px/1.35 var(--serif);color:var(--muted);border-left:3px solid var(--rule);padding-left:12px}
+.actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:12px}
+
+/* Bugdex panel */
 .dexhead{display:flex;justify-content:space-between;align-items:baseline}
-.dexhead h3{font:400 30px var(--serif);margin:0}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 14px}
-.stats div{background:var(--soft);border-radius:12px;padding:10px;text-align:center}
-.stats b{display:block;font:400 26px/1.1 var(--serif)}.stats span{font-size:12px;color:var(--muted)}
+.dexhead h3{font:400 26px var(--serif);margin:0}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0 16px}
+.stats div{display:flex;align-items:baseline;justify-content:center;gap:8px;background:var(--soft);border-radius:10px;padding:7px 8px}
+.stats b{font:400 24px/1 var(--serif)}.stats span{font-size:12px;color:var(--muted)}
 #dex{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.tile{text-align:center}.tile img{width:100%;max-width:92px}
-.tname{font-size:12px;font-weight:600;line-height:1.2}.tmeta{font-size:11px;color:var(--muted)}
+#dex{gap:12px}
+.tile{text-align:center;min-width:0}.tile img{width:var(--tile,76px);height:var(--tile,76px);max-width:100%;display:block;margin:0 auto 4px}
+.tname{font-size:12px;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tmeta{font-size:11px;color:var(--muted);line-height:1.2}
+#queue:empty{display:none}
 .locked .tname{color:var(--muted)}
+#queue{margin-top:16px;padding-top:14px;border-top:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#queue p{margin:0}
+#queue .undo{flex-basis:100%}
+.send{background:var(--btn);color:var(--btnfg);border:0;border-radius:999px;padding:9px 18px;font-weight:600;white-space:nowrap}
+.send:hover{opacity:.9}
 .linkbtn{background:none;border:0;color:var(--muted);font-size:12px;text-decoration:underline;padding:0}
-footer{text-align:center;color:var(--muted);font-size:13px;padding:0 0 36px}
+
+.tab{white-space:nowrap}
+@media (max-width:900px){
+  main{grid-template-columns:1fr}
+  .toggle{display:flex;width:100%}
+  .tab{flex:1;flex-direction:column;align-items:center;gap:0;padding:6px 10px;line-height:1.25}
+  .title h1{font-size:48px}
+  .opts{grid-template-columns:1fr}
+  .result{flex-direction:column}
+}
+@media (max-height:800px) and (min-width:901px){
+  .app{padding-top:6px}
+  main{margin-top:20px}
+  .title h1{font-size:52px}.title p{margin-top:6px}
+  .left{gap:14px}
+  .card{padding:18px 22px}
+  .stats{margin:10px 0 12px}
+  #queue{margin-top:12px;padding-top:12px}
+}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="app">
   <header>
-    <a class="mono" href="https://jainsambhav.com" aria-label="jainsambhav.com">sj<i>.</i></a>
-    <a class="back" href="https://github.com/SambhavJain26#bug-hunt">← Back to the GitHub profile</a>
+    <a class="mono" href="https://jainsambhav.com" aria-label="jainsambhav.com">sj<i aria-hidden="true"></i></a>
+    <a class="back" href="https://github.com/SambhavJain26#bug-hunt">Leaderboard on GitHub
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
   </header>
 
-  <section class="hero">
-    <h1>Bug <em>Hunt</em></h1>
-    <p>Luck finds the bug. Skill catches it. 16 bugs, from the humble Typo to the legendary Works on My Machine.</p>
-  </section>
-
-  <main class="grid">
-    <section class="card" id="stage" aria-live="polite"><p class="muted">Loading the bugs…</p></section>
+  <main>
+    <div class="left">
+      <div class="title">
+        <h1>Bug <em>Hunt</em></h1>
+        <p>Luck finds the bug. Skill catches it. 16 bugs, from the humble Typo to the legendary Works on My Machine.</p>
+      </div>
+      <section class="card" id="stage" aria-live="polite"><p class="muted">Loading the bugs…</p></section>
+    </div>
     <aside class="card">
       <div class="dexhead"><h3>Your Bugdex</h3><button class="linkbtn" id="reset">reset</button></div>
       <div class="stats">
-        <div><b id="stat-found">0 / 16</b><span>discovered</span></div>
+        <div><b id="stat-found">0/16</b><span>discovered</span></div>
         <div><b id="stat-caught">0</b><span>caught</span></div>
         <div><b id="stat-points">0</b><span>points</span></div>
       </div>
       <div id="dex"></div>
-      <p class="muted small">Saved in this browser. Want your name on the profile's leaderboard? Use “Add me to the leaderboard” after a catch.</p>
+      <div id="queue" aria-live="polite"></div>
     </aside>
   </main>
-
-  <footer>
-    Made by <a href="https://jainsambhav.com">Sambhav Jain</a> · <a href="https://github.com/SambhavJain26#bug-hunt">Leaderboard on GitHub</a>
-  </footer>
 </div>
-<script src="game.js"></script>
+<script src="game.js?v=4.2"></script>
 </body>
 </html>
