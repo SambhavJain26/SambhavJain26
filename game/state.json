@@ -1,10 +1,10 @@
 {
   "version": 4,
-  "total": 2,
+  "total": 3,
   "counts": {
     "typo": 0,
     "missing-semicolon": 1,
-    "trailing-whitespace": 0,
+    "trailing-whitespace": 1,
     "unclosed-bracket": 0,
     "off-by-one": 1,
     "flaky-test": 0,
@@ -21,14 +21,21 @@
   },
   "hunters": {
     "SambhavJain26": {
-      "catches": 2,
-      "points": 10,
+      "catches": 3,
+      "points": 14,
       "best": "off-by-one",
       "day": "2026-11-14",
-      "today": 2
+      "today": 3
     }
   },
   "recent": [
+    {
+      "login": "SambhavJain26",
+      "bug": "trailing-whitespace",
+      "at": "2026-11-14T16:36:27Z",
+      "issue": 3,
+      "mode": "report"
+    },
     {
       "login": "SambhavJain26",
       "bug": "off-by-one",
@@ -46,6 +53,7 @@
   ],
   "processed": [
     1,
-    2
+    2,
+    3
   ]
 }
