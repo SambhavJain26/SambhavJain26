@@ -16,11 +16,11 @@
 
 ### Hi, I'm Sambhav 👋
 
-<img align="right" width="240" src="https://media.giphy.com/media/l3q2zbskZp2j8wniE/giphy-downsized.gif" alt="Steve Ballmer on stage chanting developers, developers, developers">
+<img align="right" width="300" src="https://media.giphy.com/media/l3q2zbskZp2j8wniE/giphy-downsized.gif" alt="Steve Ballmer on stage chanting developers, developers, developers">
 
-**Developers, developers, developers!** Okay, it's just the one developer. Same energy though.
+**Developers, developers, developers!** Okay, it's just me. Same Steve Ballmer energy, zero sweat stains.
 
-I'm who you call when the backend has to be bulletproof, the AI has to stop guessing, and the workflow everyone does by hand has to start running itself. I build the services, connect the APIs that refuse to talk to each other, put guardrails around the LLM so it handles the clever parts and none of the risky ones, and automate the boring stuff until nobody remembers it existed. Then I test it, so it keeps running long after the coffee runs out.
+I'm who you call when your backend needs to survive a traffic spike, your AI needs to stop making things up, and that spreadsheet someone updates manually every Friday needs to be put out of its misery. I build the core architecture, play marriage counselor to APIs that refuse to talk to each other, and put guardrails on LLMs so they do the heavy lifting without burning down production. Then I test everything ruthlessly, because I like sleeping through the night and so do you.
 
 - 🧭 **Now:** looking for a remote role with a team anywhere in the world, full-time or contract
 - 🕐 **Based in** India (IST), with flexible overlap across time zones
@@ -75,7 +75,8 @@ A tiny game while you're here. Every bug in software has to come from somewhere,
 <!-- BUGHUNT:END -->
 
 <p align="center">
-  <img width="320" src="https://media.giphy.com/media/CuMiNoTRz2bYc/giphy-downsized.gif" alt="Young Anakin Skywalker grinning: it's working">
+  <img width="320" src="https://media.giphy.com/media/CuMiNoTRz2bYc/giphy-downsized.gif" alt="Young Anakin Skywalker grinning: it's working"><br>
+  <sub>pov: when you find the bug</sub>
 </p>
 
 ### Tools I've worked with
