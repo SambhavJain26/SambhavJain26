@@ -1,9 +1,9 @@
 {
   "version": 4,
-  "total": 0,
+  "total": 1,
   "counts": {
     "typo": 0,
-    "missing-semicolon": 0,
+    "missing-semicolon": 1,
     "trailing-whitespace": 0,
     "unclosed-bracket": 0,
     "off-by-one": 0,
@@ -19,7 +19,25 @@
     "deadlock": 0,
     "works-on-my-machine": 0
   },
-  "hunters": {},
-  "recent": [],
-  "processed": []
+  "hunters": {
+    "SambhavJain26": {
+      "catches": 1,
+      "points": 5,
+      "best": "missing-semicolon",
+      "day": "2026-11-14",
+      "today": 1
+    }
+  },
+  "recent": [
+    {
+      "login": "SambhavJain26",
+      "bug": "missing-semicolon",
+      "at": "2026-11-14T15:03:51Z",
+      "issue": 1,
+      "mode": "code"
+    }
+  ],
+  "processed": [
+    1
+  ]
 }
