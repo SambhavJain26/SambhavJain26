@@ -1,8 +1,6 @@
 import json
-import random
 import unittest
-from collections import Counter
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 
 from game import engine, play, render
@@ -15,228 +13,127 @@ NOW = datetime(2026, 11, 14, 10, tzinfo=timezone.utc)
 AT = NOW.isoformat()
 
 
-def start(state, login="hunter", n=1, seed=1, mode=None, bug=None):
-    r = engine.start_encounter(state, DATA, CH, login, AT, n, random.Random(seed))
-    if r["status"] == "encounter" and (mode or bug):  # pin the roll for deterministic tests
-        enc = state["encounters"][str(n)]
-        enc["mode"] = mode or enc["mode"]
-        enc["bug"] = bug or enc["bug"]
-        enc["cid"] = engine.challenge_for(CH, enc["mode"], enc["bug"])["id"]
-        bug_obj = next(b for b in DATA["bugs"] if b["id"] == enc["bug"])
-        if enc["mode"] == "report":
-            enc["options"] = engine.report_options(DATA["bugs"], bug_obj, random.Random(seed))
-        else:
-            enc.pop("options", None)
-    return r
+def fresh():
+    return engine.initial_state(DATA["bugs"])
 
 
-def good(state, n=1):
-    enc = state["encounters"][str(n)]
-    ch = next(c for c in CH[enc["mode"]] if c["id"] == enc["cid"])
-    return engine.LETTERS[enc["options"].index(ch["bug"])] if enc["mode"] == "report" else str(ch["answer"][0])
-
-
-def bad(state, n=1):
-    enc = state["encounters"][str(n)]
-    ch = next(c for c in CH[enc["mode"]] if c["id"] == enc["cid"])
-    if enc["mode"] == "report":
-        return next(engine.LETTERS[i] for i, o in enumerate(enc["options"]) if o != ch["bug"])
-    return str(next(i for i in range(1, len(ch["lines"]) + 1) if i not in ch["answer"]))
-
-
-def say(state, body, login="hunter", n=1, cid="x"):
-    return engine.answer_encounter(state, DATA, CH, n, cid, login, body, AT)
+def issue(n, title, login="hunter"):
+    return {"number": n, "title": title, "author": {"login": login}, "createdAt": AT}
 
 
 class ChallengeBank(unittest.TestCase):
     def test_one_report_and_one_code_challenge_per_bug(self):
-        for mode in engine.MODES:
+        for mode in ("report", "code"):
             self.assertEqual(sorted(c["bug"] for c in CH[mode]), sorted(BUG_IDS), mode)
 
-    def test_every_challenge_has_text_hint_and_explanation(self):
+    def test_every_challenge_is_complete(self):
         for c in CH["report"]:
             self.assertTrue(c["text"] and c["hint"] and c["explain"], c["id"])
-        for c in CH["code"]:
-            self.assertTrue(c["hint"] and c["explain"], c["id"])
-
-    def test_code_answers_point_at_real_lines(self):
         for c in CH["code"]:
             self.assertTrue(3 <= len(c["lines"]) <= 9, c["id"])
             self.assertTrue(all(1 <= a <= len(c["lines"]) for a in c["answer"]), c["id"])
             self.assertLess(len(c["answer"]), len(c["lines"]), c["id"])
+            self.assertTrue(c["hint"] and c["explain"], c["id"])
+
+    def test_weights_sum_to_100(self):
+        self.assertAlmostEqual(sum(b["weight"] for b in DATA["bugs"]), 100)
 
 
-class Inputs(unittest.TestCase):
-    def test_titles(self):
-        self.assertEqual(engine.classify_title("bughunt: catch"), "catch")
-        self.assertEqual(engine.classify_title("  BugHunt :CATCH "), "catch")
-        self.assertEqual(engine.classify_title("bughunt: catch; rm -rf /"), "unknown")
-        self.assertIsNone(engine.classify_title("Typo in README"))
-        self.assertIsNone(engine.classify_title(None))
-
-    def test_answers(self):
-        for body, want in [("b", "B"), (" C. ", "C"), ("3", "3"), ("12)", "12")]:
-            self.assertEqual(engine.parse_answer(body), want, body)
-        for body in ["E", "line 3", "B because typo", "", None, "1" * 30, "$(whoami)"]:
-            self.assertIsNone(engine.parse_answer(body), body)
+class Titles(unittest.TestCase):
+    def test_parse(self):
+        self.assertEqual(engine.parse_title("bughunt: record timezone-bug code"),
+                         {"kind": "record", "bug": "timezone-bug", "mode": "code"})
+        self.assertEqual(engine.parse_title("BugHunt:Record Typo REPORT")["bug"], "typo")
+        self.assertEqual(engine.parse_title("bughunt: catch"), {"kind": "legacy"})
+        self.assertEqual(engine.parse_title("bughunt: record typo code; rm -rf /"), {"kind": "unknown"})
+        self.assertIsNone(engine.parse_title("Typo in README"))
+        self.assertIsNone(engine.parse_title(None))
 
     def test_logins(self):
         self.assertTrue(engine.valid_login("octocat"))
-        for bad_login in ["", "-ab", "ab-", "github-actions[bot]", "x" * 40, None]:
-            self.assertFalse(engine.valid_login(bad_login))
+        for bad in ["", "-ab", "ab-", "github-actions[bot]", "x" * 40, None]:
+            self.assertFalse(engine.valid_login(bad))
 
 
-class Luck(unittest.TestCase):
-    def test_rarity_roll_follows_weights(self):
-        rarity = {b["id"]: b["rarity"] for b in DATA["bugs"]}
-        counts = Counter()
-        rng = random.Random(3)
-        for i in range(20000):
-            s = engine.initial_state(DATA["bugs"])
-            r = engine.start_encounter(s, DATA, CH, f"u{i % 500}", AT, i, rng)
-            counts[rarity[r["bug"]["id"]]] += 1
-        self.assertAlmostEqual(counts["common"] / 20000, 0.48, delta=0.02)
-        self.assertAlmostEqual(counts["legendary"] / 20000, 0.02, delta=0.006)
+class Recording(unittest.TestCase):
+    def test_record_with_discoverer_bonus_and_code_double(self):
+        s = fresh()
+        r = engine.record_catch(s, DATA, "ada", AT, 1, "null-pointer", "code")
+        self.assertEqual(r["status"], "recorded")
+        self.assertEqual(r["points"], 5 * 2 + engine.DISCOVERER_BONUS)
+        r = engine.record_catch(s, DATA, "bob", AT, 2, "null-pointer", "report")
+        self.assertEqual(r["points"], 5)
+        self.assertFalse(r["first_ever"])
+        self.assertEqual(s["counts"]["null-pointer"], 2)
 
-    def test_report_decoys_share_the_rarity_and_legendary_is_always_code(self):
-        bugs = {b["id"]: b for b in DATA["bugs"]}
-        for bug in DATA["bugs"]:
-            if bug["rarity"] in ("common", "uncommon", "rare"):
-                opts = engine.report_options(DATA["bugs"], bug, random.Random(1))
-                self.assertEqual(len(opts), 4)
-                self.assertIn(bug["id"], opts)
-                self.assertEqual({bugs[o]["rarity"] for o in opts}, {bug["rarity"]}, bug["id"])
-        rng = random.Random(9)
-        for i in range(3000):
-            s = engine.initial_state(DATA["bugs"])
-            r = engine.start_encounter(s, DATA, CH, "u", AT, i, rng)
-            if r["bug"]["rarity"] == "legendary":
-                self.assertEqual(r["mode"], "code")
-
-    def test_both_modes_appear(self):
-        s = engine.initial_state(DATA["bugs"])
-        rng = random.Random(4)
-        modes = {engine.start_encounter(s, DATA, CH, f"u{i}", AT, i, rng)["mode"] for i in range(40)}
-        self.assertEqual(modes, {"report", "code"})
-
-
-class Skill(unittest.TestCase):
-    def test_correct_answer_catches_with_discoverer_bonus(self):
-        s = engine.initial_state(DATA["bugs"])
-        start(s, mode="report", bug="typo")
-        r = say(s, good(s))
-        self.assertEqual(r["status"], "caught")
-        self.assertEqual(r["points"], 1 + engine.DISCOVERER_BONUS)
-        self.assertTrue(r["first_ever"])
-        self.assertEqual(s["counts"]["typo"], 1)
-        self.assertNotIn("1", s["encounters"])
-
-    def test_code_is_double_points(self):
-        s = engine.initial_state(DATA["bugs"])
-        s["counts"]["null-pointer"] = 1  # not the first ever, so no bonus
-        start(s, mode="code", bug="null-pointer")
-        r = say(s, good(s))
-        self.assertEqual(r["points"], 5 * engine.CODE_MULTIPLIER)
-
-    def test_three_wrong_answers_and_it_escapes(self):
-        s = engine.initial_state(DATA["bugs"])
-        start(s, mode="code", bug="off-by-one")
-        wrong_answer = bad(s)
-        self.assertEqual(say(s, wrong_answer, cid="a")["tries_left"], 2)
-        self.assertEqual(say(s, wrong_answer, cid="b")["tries_left"], 1)
-        self.assertEqual(say(s, wrong_answer, cid="c")["status"], "escaped")
-        self.assertNotIn("1", s["encounters"])
+    def test_unknown_bug_and_duplicates(self):
+        s = fresh()
+        self.assertEqual(engine.record_catch(s, DATA, "ada", AT, 1, "dragon", "code")["status"], "unknown_bug")
+        self.assertEqual(engine.record_catch(s, DATA, "ada", AT, 1, "typo", "code")["status"], "duplicate")
         self.assertEqual(s["total"], 0)
 
-    def test_only_the_starter_counts_and_chatter_is_ignored(self):
-        s = engine.initial_state(DATA["bugs"])
-        start(s, mode="report", bug="typo")
-        self.assertIsNone(say(s, good(s), login="someone-else", cid="a"))
-        self.assertIsNone(say(s, "is it the typo one?", cid="b"))
-        self.assertIsNone(say(s, good(s), cid="b"))  # same comment id twice: ignored
-        self.assertEqual(say(s, "Z9", cid="c"), None)
-        self.assertEqual(say(s, "D" if good(s) != "D" else "C", cid="d")["status"], "wrong")
-
-    def test_out_of_range_answers_do_not_cost_a_try(self):
-        s = engine.initial_state(DATA["bugs"])
-        start(s, mode="code", bug="typo")
-        r = say(s, "9")
-        self.assertEqual(r["status"], "invalid")
-        self.assertEqual(s["encounters"]["1"]["tries"], 0)
-
-    def test_daily_limit_and_duplicates(self):
-        s = engine.initial_state(DATA["bugs"])
+    def test_daily_limit_resets_next_day(self):
+        s = fresh()
         for i in range(engine.DAILY_LIMIT):
-            self.assertEqual(start(s, n=i + 1)["status"], "encounter")
-        self.assertEqual(start(s, n=99)["status"], "limit")
-        self.assertEqual(start(s, n=1)["status"], "duplicate")
+            engine.record_catch(s, DATA, "ada", AT, i + 1, "typo", "report")
+        self.assertEqual(engine.record_catch(s, DATA, "ada", AT, 99, "typo", "report")["status"], "limit")
+        tomorrow = "2026-11-15T01:00:00+00:00"
+        self.assertEqual(engine.record_catch(s, DATA, "ada", tomorrow, 100, "typo", "report")["status"], "recorded")
 
-    def test_unanswered_encounters_expire(self):
-        s = engine.initial_state(DATA["bugs"])
-        start(s)
-        self.assertEqual(engine.expire_encounters(s, NOW + timedelta(hours=1)), [])
-        self.assertEqual(engine.expire_encounters(s, NOW + timedelta(hours=25)), [1])
-        self.assertEqual(s["encounters"], {})
+    def test_best_bug_is_the_rarest(self):
+        s = fresh()
+        engine.record_catch(s, DATA, "ada", AT, 1, "heisenbug", "report")
+        engine.record_catch(s, DATA, "ada", AT, 2, "typo", "report")
+        self.assertEqual(s["hunters"]["ada"]["best"], "heisenbug")
+
+    def test_leaderboard_order(self):
+        s = fresh()
+        engine.record_catch(s, DATA, "low", AT, 1, "typo", "report")
+        engine.record_catch(s, DATA, "high", AT, 2, "works-on-my-machine", "code")
+        self.assertEqual([k for k, _ in engine.leaderboard(s)], ["high", "low"])
 
 
 class Runner(unittest.TestCase):
-    def test_full_flow_through_process(self):
-        s = engine.initial_state(DATA["bugs"])
-        issues = [{"number": 7, "title": "bughunt: catch", "author": {"login": "ada-l"}, "createdAt": AT},
-                  {"number": 8, "title": "Bug in your site", "author": {"login": "x"}, "createdAt": AT},
-                  {"number": 9, "title": "bughunt: hi", "author": {"login": "y"}, "createdAt": AT}]
-        out = play.process(issues, lambda n: [], s, DATA, CH, random.Random(2), NOW)
-        self.assertEqual([(o["issue"], o["close"]) for o in out], [(7, False), (9, True)])
-        self.assertIn("A wild", out[0]["body"])
-        comments = [{"id": "c1", "author": {"login": "github-actions"}, "body": "A", "createdAt": AT},
-                     {"id": "c2", "author": {"login": "ada-l"}, "body": good(s, 7), "createdAt": AT}]
-        out = play.process(issues[:1], lambda n: comments, s, DATA, CH, random.Random(2), NOW)
-        self.assertEqual(len(out), 1)
-        self.assertTrue(out[0]["close"])
-        self.assertIn("Caught it!", out[0]["body"])
+    def test_process_records_and_closes_everything_it_touches(self):
+        s = fresh()
+        issues = [issue(1, "bughunt: record typo report", "ada-l"), issue(2, "Bug in your site"),
+                  issue(3, "bughunt: catch"), issue(4, "bughunt: hello"),
+                  issue(5, "bughunt: record typo code", "evil[bot]")]
+        out = play.process(issues, s, DATA, NOW)
+        self.assertEqual([o["issue"] for o in out], [1, 3, 4, 5])
+        self.assertIn("You're on the board", out[0]["body"])
+        self.assertIn("moved to an instant game", out[1]["body"])
         self.assertEqual(s["total"], 1)
-        out = play.process(issues[:1], lambda n: comments, s, DATA, CH, random.Random(2), NOW)
-        self.assertEqual(out, [{"issue": 7, "body": None, "close": True}])  # finished: only close
-
-    def test_encounter_reply_shows_the_challenge(self):
-        for mode in engine.MODES:
-            s = engine.initial_state(DATA["bugs"])
-            start(s, mode=mode, bug="timezone-bug")
-            r = {"bug": next(b for b in DATA["bugs"] if b["id"] == "timezone-bug"), "mode": mode,
-                 "challenge": engine.challenge_for(CH, mode, "timezone-bug"),
-                 "options": s["encounters"]["1"].get("options")}
-            body = render.reply_encounter(r, DATA)
-            ch = r["challenge"]
-            right = (engine.LETTERS[r["options"].index(ch["bug"])] if mode == "report" else str(ch["answer"][0]))
-            self.assertNotIn(f"for example `{right}`", body)  # the example never gives the answer away
-            self.assertIn("Uncommon", body)
-            self.assertIn("Reply with just the", body)
-            if mode == "code":
-                self.assertIn("```python", body)
-            else:
-                self.assertIn("**A.**", body)
+        again = play.process(issues[:1], s, DATA, NOW)
+        self.assertEqual(again, [{"issue": 1, "body": None}])
 
 
 class ReadmeSection(unittest.TestCase):
     def test_empty_and_busy_board(self):
-        s = engine.initial_state(DATA["bugs"])
+        s = fresh()
         sec = render.section(s, DATA)
-        self.assertIn("issues/new?title=bughunt%3A%20catch", sec)
-        self.assertIn("No hunters yet", sec)
+        self.assertIn(render.GAME_URL, sec)
+        self.assertIn("No hunters on the board yet", sec)
         self.assertEqual(sec.count('alt="Undiscovered bug"'), len(DATA["bugs"]))
-        start(s, login="ada-l", mode="report", bug="typo")
-        say(s, good(s), login="ada-l")
+        engine.record_catch(s, DATA, "ada-l", AT, 1, "typo", "report")
         sec = render.section(s, DATA)
         self.assertIn("Top hunters", sec)
         self.assertIn("@ada-l", sec)
 
-    def test_readme_markers_and_anchors(self):
+    def test_readme_markers_anchors_and_top_bar(self):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         for needle in [render.START, render.END, '<a name="bug-hunt"></a>', '<a name="selected-work"></a>',
-                       '<a name="tools"></a>', 'href="#bug-hunt"']:
+                       '<a name="tools"></a>', "assets/bar-light.svg", "### Hey there 👋"]:
             self.assertIn(needle, readme)
+        self.assertNotIn("img.shields.io", readme)
+        self.assertNotIn("hspace", readme)
         with self.assertRaises(ValueError):
             render.replace_section("no markers", "x")
+
+    def test_game_page_exists(self):
+        for f in ["index.html", "game.js", "data/bugs.json", "data/challenges.json", ".nojekyll",
+                  "fonts/InstrumentSerif-Regular.ttf", "art/unknown-legendary-dark.svg"]:
+            self.assertTrue((ROOT / "docs" / f).exists(), f)
 
 
 if __name__ == "__main__":

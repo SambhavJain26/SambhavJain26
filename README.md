@@ -1,17 +1,5 @@
 <p align="center">
-  <a href="https://jainsambhav.com">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="assets/header-dark.svg">
-      <img src="assets/header-light.svg" width="100%" alt="Sambhav Jain: AI & Software Engineering · Automation & Operations">
-    </picture>
-  </a>
-</p>
-
-<p align="center">
-  <a href="https://jainsambhav.com"><img src="https://img.shields.io/badge/Portfolio-jainsambhav.com-191a1c?style=flat-square" alt="Portfolio"></a>
-  <a href="https://www.linkedin.com/in/sambhav-jain-2b2800257/"><img src="https://img.shields.io/badge/LinkedIn-Sambhav%20Jain-145cff?style=flat-square&logo=linkedin&logoColor=white" alt="LinkedIn"></a>
-  <a href="mailto:sambhav@jainsambhav.com"><img src="https://img.shields.io/badge/Email-sambhav%40jainsambhav.com-e6243f?style=flat-square&logo=maildotru&logoColor=white" alt="Email"></a>
-  <a href="https://jainsambhav.com/Sambhav-Jain-Resume.pdf"><img src="https://img.shields.io/badge/R%C3%A9sum%C3%A9-PDF-62636a?style=flat-square" alt="Résumé"></a>
+  <a href="https://jainsambhav.com"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/bar-dark.svg"><img src="assets/bar-light.svg" width="100%" alt="jainsambhav.com: a little curiosity, a lot of building"></picture></a>
 </p>
 
 <p align="center">
@@ -19,9 +7,9 @@
   <sub>Jump to <a href="#selected-work">Selected work</a> · <a href="#bug-hunt">Bug Hunt</a> · <a href="#tools">Tools</a></sub>
 </p>
 
-### Hi, I'm Sambhav 👋
+### Hey there 👋
 
-<img align="right" width="260" hspace="16" src="https://media.giphy.com/media/l3q2zbskZp2j8wniE/giphy-downsized.gif" alt="Steve Ballmer on stage chanting developers, developers, developers">
+<img align="right" width="260" src="https://media.giphy.com/media/l3q2zbskZp2j8wniE/giphy.webp" alt="Steve Ballmer on stage chanting developers, developers, developers">
 
 **Developers, developers, developers!** Okay, it's just me. Same Steve Ballmer energy, zero sweat stains.
 
@@ -55,7 +43,7 @@ I'm who you call when your backend needs to survive a traffic spike, your AI nee
 
 ### 🐛 Bug Hunt
 
-<img align="right" width="260" hspace="16" src="https://media.giphy.com/media/zOvBKUUEERdNm/giphy-downsized.gif" alt="A monkey typing away at a computer, programmer-style">
+<img align="right" width="260" src="https://media.giphy.com/media/zOvBKUUEERdNm/giphy.webp" alt="A monkey typing away at a computer, programmer-style">
 
 A tiny game while you're here. Every bug in software has to come from somewhere, and apparently they all live in this README.
 
@@ -64,8 +52,8 @@ Press **Catch a bug** and a random bug shows up. 🎲 **Luck** decides how rare 
 <br clear="right">
 
 <!-- BUGHUNT:START -->
-<p align="center"><a href="https://github.com/SambhavJain26/SambhavJain26/issues/new?title=bughunt%3A%20catch&body=Just%20press%20%2A%2ACreate%2A%2A%20without%20changing%20the%20title.%20In%20about%20a%20minute%20a%20bug%20will%20appear%20here%20with%20a%20challenge.%20Answer%20it%20in%20a%20comment%20to%20catch%20it.%20%F0%9F%90%9B"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/catch-button-dark.svg"><img src="assets/catch-button-light.svg" width="330" alt="Catch a bug"></picture></a></p>
-<p align="center"><sub>🎲 Luck decides which bug shows up · 🧠 skill decides if you catch it<br>Press <b>Create</b> on the issue, then answer the bot's challenge in a comment.</sub></p>
+<p align="center"><a href="https://sambhavjain26.github.io/SambhavJain26/"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/catch-button-dark.svg"><img src="assets/catch-button-light.svg" width="330" alt="Catch a bug"></picture></a></p>
+<p align="center"><sub>Opens the game: 🎲 luck finds the bug, 🧠 skill catches it, instantly.<br>Caught one? Add yourself to the board below from the game.</sub></p>
 
 <table align="center">
 <tr><td align="center" width="25%"><picture><source media="(prefers-color-scheme: dark)" srcset="game/art/unknown-common-dark.svg"><img src="game/art/unknown-common-light.svg" width="112" alt="Undiscovered bug"></picture><br><sub><b>???</b></sub><br><sub>Common · not caught yet</sub></td><td align="center" width="25%"><picture><source media="(prefers-color-scheme: dark)" srcset="game/art/unknown-common-dark.svg"><img src="game/art/unknown-common-light.svg" width="112" alt="Undiscovered bug"></picture><br><sub><b>???</b></sub><br><sub>Common · not caught yet</sub></td><td align="center" width="25%"><picture><source media="(prefers-color-scheme: dark)" srcset="game/art/unknown-common-dark.svg"><img src="game/art/unknown-common-light.svg" width="112" alt="Undiscovered bug"></picture><br><sub><b>???</b></sub><br><sub>Common · not caught yet</sub></td><td align="center" width="25%"><picture><source media="(prefers-color-scheme: dark)" srcset="game/art/unknown-common-dark.svg"><img src="game/art/unknown-common-light.svg" width="112" alt="Undiscovered bug"></picture><br><sub><b>???</b></sub><br><sub>Common · not caught yet</sub></td></tr>
@@ -74,7 +62,7 @@ Press **Catch a bug** and a random bug shows up. 🎲 **Luck** decides how rare 
 <tr><td align="center" width="25%"><picture><source media="(prefers-color-scheme: dark)" srcset="game/art/unknown-epic-dark.svg"><img src="game/art/unknown-epic-light.svg" width="112" alt="Undiscovered bug"></picture><br><sub><b>???</b></sub><br><sub>Epic · not caught yet</sub></td><td align="center" width="25%"><picture><source media="(prefers-color-scheme: dark)" srcset="game/art/unknown-epic-dark.svg"><img src="game/art/unknown-epic-light.svg" width="112" alt="Undiscovered bug"></picture><br><sub><b>???</b></sub><br><sub>Epic · not caught yet</sub></td><td align="center" width="25%"><picture><source media="(prefers-color-scheme: dark)" srcset="game/art/unknown-epic-dark.svg"><img src="game/art/unknown-epic-light.svg" width="112" alt="Undiscovered bug"></picture><br><sub><b>???</b></sub><br><sub>Epic · not caught yet</sub></td><td align="center" width="25%"><picture><source media="(prefers-color-scheme: dark)" srcset="game/art/unknown-legendary-dark.svg"><img src="game/art/unknown-legendary-light.svg" width="112" alt="Undiscovered bug"></picture><br><sub><b>???</b></sub><br><sub>Legendary · not caught yet</sub></td></tr>
 </table>
 
-<p align="center"><b>No hunters yet. Be the first to catch one!</b></p>
+<p align="center"><b>No hunters on the board yet. Be the first!</b></p>
 
 
 <!-- BUGHUNT:END -->

@@ -3,7 +3,7 @@
 Run from the repo root:  python tools/build_assets.py
 
 Generates (light + dark for each):
-  assets/header-*.svg         animated header in the jainsambhav.com style
+  assets/bar-*.svg            thin top bar in the jainsambhav.com style
   assets/cards/*-*.svg        selected-work cards
   assets/more-work-*.svg      "More work" link
   assets/catch-button-*.svg   Bug Hunt "Catch a bug" button
@@ -92,67 +92,40 @@ def write(path: Path, svg: str) -> None:
 REDUCED_MOTION = "@media (prefers-reduced-motion: reduce){*{animation:none!important}.in{opacity:1!important}}"
 
 
-# --------------------------------------------------------------------------- header
-def header(theme: str) -> str:
+# --------------------------------------------------------------------------- top bar
+def bar(theme: str) -> str:
+    """A thin bar in the jainsambhav.com style: monogram, tagline, link pill. No name on purpose."""
     t = THEMES[theme]
-    W, H = 1200, 304
-    name_regular, name_italic = "Sambhav ", "Jain."
-    faces = serif_faces(regular_text=name_regular + "sj.", italic_text=name_italic)
-    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-label="Sambhav Jain. AI and software engineering. Automation and operations.">
-<title>Sambhav Jain: AI &amp; Software Engineering · Automation &amp; Operations</title>
+    W, H = 1200, 88
+    faces = serif_faces(regular_text="sj")
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-label="jainsambhav.com: a little curiosity, a lot of building">
+<title>jainsambhav.com</title>
 <defs>
 <style>
 {faces}
-.label{{font:600 13px {SANS};letter-spacing:3.4px;fill:{t['muted']}}}
-.name{{font-family:{SERIF};font-size:112px;fill:{t['ink']}}}
-.it{{font-family:{SERIF_IT};font-style:italic}}
-.mono{{font-family:{SERIF};font-size:40px;fill:{t['ink']}}}
-.pill{{font:500 14px {SANS};fill:{t['ink']}}}
-.pt{{font:500 23px {DISPLAY_SANS};fill:{t['ink']}}}
-.ps{{font:400 16px {SANS};fill:{t['muted']}}}
-.in{{animation:rise 1s cubic-bezier(.2,.7,.2,1) both;transform-box:fill-box}}
-.d1{{animation-delay:.05s}}.d2{{animation-delay:.3s}}.d3{{animation-delay:.85s}}.d4{{animation-delay:1.1s}}.d5{{animation-delay:1.4s}}
-@keyframes rise{{from{{opacity:0;transform:translateY(16px)}}to{{opacity:1;transform:translateY(0)}}}}
+.mono{{font-family:{SERIF};font-size:44px;fill:{t['ink']}}}
+.tag{{font:600 13px {SANS};letter-spacing:3.4px;fill:{t['muted']}}}
+.url{{font:500 16px {SANS};fill:{t['ink']}}}
 .pulse{{transform-box:fill-box;transform-origin:center;animation:pulse 3s ease-in-out infinite}}
-.pulse.b{{animation-delay:1.5s}}
-@keyframes pulse{{0%,100%{{transform:scale(1);opacity:1}}50%{{transform:scale(1.55);opacity:.55}}}}
-.ring{{transform-box:fill-box;transform-origin:center;animation:ring 2.4s ease-out infinite}}
-@keyframes ring{{0%{{transform:scale(.6);opacity:.7}}100%{{transform:scale(2.4);opacity:0}}}}
+@keyframes pulse{{0%,100%{{transform:scale(1);opacity:1}}50%{{transform:scale(1.5);opacity:.6}}}}
+.arrow{{animation:nudge 3s ease-in-out infinite}}
+@keyframes nudge{{0%,70%,100%{{transform:translate(0,0)}}80%{{transform:translate(2px,-2px)}}}}
 {REDUCED_MOTION}
 </style>
 <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="11" cy="11" r="1.15" fill="{t['dot']}"/></pattern>
-<radialGradient id="veil" cx="50%" cy="52%" r="62%"><stop offset="0" stop-color="{t['paper']}" stop-opacity="1"/><stop offset=".55" stop-color="{t['paper']}" stop-opacity=".82"/><stop offset="1" stop-color="{t['paper']}" stop-opacity="0"/></radialGradient>
-<clipPath id="frame"><rect width="{W}" height="{H}" rx="22"/></clipPath>
+<clipPath id="frame"><rect width="{W}" height="{H}" rx="18"/></clipPath>
 </defs>
 <g clip-path="url(#frame)">
 <rect width="{W}" height="{H}" fill="{t['paper']}"/>
-<rect width="{W}" height="{H}" fill="url(#dots)"/>
-<rect width="{W}" height="{H}" fill="url(#veil)"/>
+<rect width="{W}" height="{H}" fill="url(#dots)" opacity=".7"/>
 </g>
-<rect x=".75" y=".75" width="{W-1.5}" height="{H-1.5}" rx="21.5" fill="none" stroke="{t['rule']}" stroke-width="1.5"/>
-
-<text class="mono in d1" x="56" y="62">sj<tspan fill="{t['red']}">.</tspan></text>
-
-<g class="in d1">
-<rect x="880" y="30" width="264" height="40" rx="20" fill="{t['card']}" stroke="{t['rule']}"/>
-<circle class="ring" cx="904" cy="50" r="5" fill="none" stroke="{t['blue']}" stroke-width="2"/>
-<circle cx="904" cy="50" r="5" fill="{t['blue']}"/>
-<text class="pill" x="920" y="55">Open to remote roles · IST</text>
-</g>
-
-<text class="label in d1" x="{W/2}" y="100" text-anchor="middle">A LITTLE CURIOSITY. A LOT OF BUILDING.</text>
-<text class="name in d2" x="{W/2}" y="198" text-anchor="middle">{name_regular}<tspan class="it">{name_italic}</tspan></text>
-
-<g class="in d3">
-<circle class="pulse" cx="64" cy="245" r="5" fill="{t['red']}"/>
-<text class="pt" x="80" y="253">AI &amp; Software Engineering</text>
-<text class="ps" x="64" y="280">Backend services, AI systems and developer tools.</text>
-</g>
-<g class="in d4">
-<circle class="pulse b" cx="1136" cy="245" r="5" fill="{t['blue']}"/>
-<text class="pt" x="1120" y="253" text-anchor="end">Automation &amp; Operations</text>
-<text class="ps" x="1136" y="280" text-anchor="end">Connecting tools and automating everyday workflows.</text>
-</g>
+<rect x=".75" y=".75" width="{W-1.5}" height="{H-1.5}" rx="17.5" fill="none" stroke="{t['rule']}" stroke-width="1.5"/>
+<text class="mono" x="40" y="58">sj</text>
+<circle class="pulse" cx="68" cy="55" r="4.2" fill="{t['red']}"/>
+<text class="tag" x="{W/2}" y="49" text-anchor="middle">A LITTLE CURIOSITY. A LOT OF BUILDING.</text>
+<rect x="958" y="22" width="206" height="44" rx="22" fill="{t['card']}" stroke="{t['rule']}" stroke-width="1.5"/>
+<text class="url" x="982" y="49">jainsambhav.com</text>
+<g class="arrow"><path d="M1132 50 L1144 38 M1136 38 H1144 V46" fill="none" stroke="{t['ink']}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>
 </svg>
 """
 
@@ -576,7 +549,7 @@ def _tile_wrap(bug: dict, rarity: dict, theme: str, art: str, styles: list[str],
 def main() -> None:
     data = json.loads((ROOT / "game" / "bugs.json").read_text(encoding="utf-8"))
     for theme in THEMES:
-        write(ROOT / "assets" / f"header-{theme}.svg", header(theme))
+        write(ROOT / "assets" / f"bar-{theme}.svg", bar(theme))
         write(ROOT / "assets" / f"more-work-{theme}.svg", more_work(theme))
         write(ROOT / "assets" / f"catch-button-{theme}.svg", catch_button(theme))
         write(ROOT / "assets" / f"play-bug-hunt-{theme}.svg", play_button(theme))

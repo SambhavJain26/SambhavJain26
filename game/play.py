@@ -1,14 +1,13 @@
-"""Bug Hunt runner, called by .github/workflows/bug-hunt.yml.
+"""Bug Hunt leaderboard runner, called by .github/workflows/bug-hunt.yml.
 
-  python -m game.play process   # read open bughunt issues + new comments, update state.json + README.md, write the outbox
-  python -m game.play deliver   # post the outbox replies and close finished hunts (after the push)
+  python -m game.play process   # read open bughunt issues, update state.json + README.md, write the outbox
+  python -m game.play deliver   # post the outbox replies and close those issues (after the push)
   python -m game.play simulate --n 30 --seed 7 --out _preview   # local preview only
 
 Security notes:
-- Issue titles, comments and logins are untrusted. They never reach a shell: `gh` is
-  called with an argument list (no shell=True), titles must match a fixed pattern,
-  only the hunt starter's comments count, and an answer must be a single letter
-  A-D or a line number.
+- Issue titles and logins are untrusted. They never reach a shell: `gh` is called
+  with an argument list (no shell=True), titles must match a fixed pattern, the
+  bug id must exist in bugs.json, and logins are validated before use.
 - Only issues whose title starts with "bughunt" are touched.
 """
 from __future__ import annotations
@@ -27,27 +26,18 @@ from . import engine, render
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA_PATH = ROOT / "game" / "bugs.json"
-CHALLENGES_PATH = ROOT / "game" / "challenges.json"
 STATE_PATH = ROOT / "game" / "state.json"
 README_PATH = ROOT / "README.md"
-
-
-def now_utc() -> datetime:
-    return datetime.now(timezone.utc)
 
 
 def load_data() -> dict:
     return json.loads(DATA_PATH.read_text(encoding="utf-8"))
 
 
-def load_challenges() -> dict:
-    return json.loads(CHALLENGES_PATH.read_text(encoding="utf-8"))
-
-
 def load_state(data: dict, path: Path = STATE_PATH) -> dict:
     if path.exists():
         state = json.loads(path.read_text(encoding="utf-8"))
-        if state.get("version") == 3:
+        if state.get("version") == 4:
             for bug in data["bugs"]:
                 state["counts"].setdefault(bug["id"], 0)
             return state
@@ -75,49 +65,29 @@ def fetch_open_issues(repo: str) -> list[dict]:
     return sorted(json.loads(out), key=lambda i: i["number"])
 
 
-def fetch_comments(repo: str, number: int) -> list[dict]:
-    out = gh("issue", "view", str(number), "--repo", repo, "--json", "comments")
-    return json.loads(out).get("comments", [])
-
-
-def process(issues: list[dict], comments_for, state: dict, data: dict, challenges: dict,
-            rng: random.Random, now: datetime) -> list[dict]:
-    """Apply open bughunt issues (and their new comments) to `state`. Returns the outbox."""
+def process(issues: list[dict], state: dict, data: dict, now: datetime) -> list[dict]:
+    """Apply open bughunt issues to `state`; return the replies to post (every one closes its issue)."""
     outbox = []
     for issue in issues:
         number = issue.get("number")
-        kind = engine.classify_title(issue.get("title"))
+        parsed = engine.parse_title(issue.get("title"))
         login = (issue.get("author") or {}).get("login")
-        if kind is None or not isinstance(number, int):
+        if parsed is None or not isinstance(number, int):
             continue  # not a Bug Hunt issue: leave it alone
-        if kind == "unknown" or not engine.valid_login(login):
-            if number not in state["processed"]:
-                engine.mark_processed(state, number)
-                outbox.append({"issue": number, "body": render.reply_unknown(), "close": True})
+        if number in state["processed"]:
+            outbox.append({"issue": number, "body": None})  # handled before; just close it
             continue
-        if str(number) not in state["encounters"]:
-            if number in state["processed"]:
-                outbox.append({"issue": number, "body": None, "close": True})  # finished earlier; just close
-                continue
-            when = issue.get("createdAt") or now.isoformat()
-            result = engine.start_encounter(state, data, challenges, login, when, number, rng)
-            if result["status"] == "encounter":
-                outbox.append({"issue": number, "body": render.reply_encounter(result, data), "close": False})
-            elif result["status"] == "limit":
-                outbox.append({"issue": number, "body": render.reply_limit(result), "close": True})
+        if parsed["kind"] == "legacy":
+            engine.mark_processed(state, number)
+            outbox.append({"issue": number, "body": render.reply_legacy()})
             continue
-        for c in sorted(comments_for(number), key=lambda c: c.get("createdAt", "")):
-            author = (c.get("author") or {}).get("login")
-            result = engine.answer_encounter(state, data, challenges, number, str(c.get("id")), author,
-                                             c.get("body"), c.get("createdAt") or now.isoformat())
-            if result is None:
-                continue
-            done = result["status"] in ("caught", "escaped")
-            outbox.append({"issue": number, "body": render.reply_for_answer(result, data), "close": done})
-            if done:
-                break
-    for number in engine.expire_encounters(state, now):
-        outbox.append({"issue": number, "body": render.reply_expired(), "close": True})
+        if parsed["kind"] == "unknown" or not engine.valid_login(login):
+            engine.mark_processed(state, number)
+            outbox.append({"issue": number, "body": render.reply_unknown()})
+            continue
+        when = issue.get("createdAt") or now.isoformat()
+        result = engine.record_catch(state, data, login, when, number, parsed["bug"], parsed["mode"])
+        outbox.append({"issue": number, "body": render.reply_for(result, data)})
     return outbox
 
 
@@ -129,16 +99,15 @@ def update_readme(state: dict, data: dict, readme_path: Path = README_PATH) -> N
 
 def cmd_process() -> int:
     repo = os.environ["GITHUB_REPOSITORY"]
-    data, challenges = load_data(), load_challenges()
+    data = load_data()
     state = load_state(data)
     before = json.dumps(state, sort_keys=True)
-    outbox = process(fetch_open_issues(repo), lambda n: fetch_comments(repo, n), state, data, challenges,
-                     random.SystemRandom(), now_utc())
+    outbox = process(fetch_open_issues(repo), state, data, datetime.now(timezone.utc))
     save_json(outbox_path(), {"repo": repo, "items": outbox})
     if json.dumps(state, sort_keys=True) != before or not STATE_PATH.exists():
         save_json(STATE_PATH, state)
         update_readme(state, data)
-    print(f"queued {len(outbox)} Bug Hunt action(s)")
+    print(f"queued {len(outbox)} Bug Hunt repl(ies)")
     return 0
 
 
@@ -160,44 +129,32 @@ def cmd_deliver() -> int:
                     gh("issue", "comment", number, "--repo", box["repo"], "--body-file", body_file)
                 finally:
                     os.unlink(body_file)
-            if item.get("close"):
-                gh("issue", "close", number, "--repo", box["repo"], "--reason", "completed")
+            gh("issue", "close", number, "--repo", box["repo"], "--reason", "completed")
         except subprocess.CalledProcessError as exc:
             failures += 1
             print(f"could not update #{number}: {exc.stderr.strip()}", file=sys.stderr)
-    print(f"delivered {len(box['items']) - failures}/{len(box['items'])} actions")
+    print(f"delivered {len(box['items']) - failures}/{len(box['items'])}")
     return 1 if failures else 0
 
 
 def cmd_simulate(n: int, seed: int, out: Path) -> int:
-    """Fill a throwaway copy of the state + README with fake hunts, for previewing only."""
-    data, challenges = load_data(), load_challenges()
+    """Fill a throwaway copy of the state + README with fake leaderboard entries, for previewing only."""
+    data = load_data()
     rng = random.Random(seed)
     state = engine.initial_state(data["bugs"])
     hunters = ["octo-dev", "bugbuster", "null-ninja", "semi-colon", "heap-hero", "ada-l"]
     start = datetime(2026, 11, 14, tzinfo=timezone.utc)
+    bugs = data["bugs"]
     for i in range(n):
-        when = (start + timedelta(hours=i * 2)).isoformat()
-        who = rng.choice(hunters)
-        r = engine.start_encounter(state, data, challenges, who, when, i + 1, rng)
-        if r["status"] != "encounter":
-            continue
-        ch = r["challenge"]
-        for attempt in range(engine.MAX_TRIES):
-            if r["mode"] == "report":
-                good = engine.LETTERS[r["options"].index(ch["bug"])]
-                ans = good if rng.random() < 0.55 else rng.choice(engine.LETTERS)
-            else:
-                ans = str(ch["answer"][0] if rng.random() < 0.45 else rng.randint(1, len(ch["lines"])))
-            res = engine.answer_encounter(state, data, challenges, i + 1, f"c{i}-{attempt}", who, ans, when)
-            if res and res["status"] in ("caught", "escaped"):
-                break
+        bug = rng.choices(bugs, weights=[float(b["weight"]) for b in bugs], k=1)[0]
+        engine.record_catch(state, data, rng.choice(hunters), (start + timedelta(hours=i * 3)).isoformat(),
+                            i + 1, bug["id"], rng.choice(["report", "code"]))
     out.mkdir(parents=True, exist_ok=True)
     save_json(out / "state.json", state)
     readme = README_PATH.read_text(encoding="utf-8")
     (out / "README.md").write_text(render.replace_section(readme, render.section(state, data)),
                                    encoding="utf-8", newline="\n")
-    print(f"simulated {n} hunts into {out}")
+    print(f"simulated {n} leaderboard entries into {out}")
     return 0
 
 
