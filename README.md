@@ -16,11 +16,15 @@
 
 ### Hi, I'm Sambhav 👋
 
-<img align="right" width="300" src="https://media.giphy.com/media/l3q2zbskZp2j8wniE/giphy-downsized.gif" alt="Steve Ballmer on stage chanting developers, developers, developers">
+<img align="right" width="260" src="https://media.giphy.com/media/l3q2zbskZp2j8wniE/giphy-downsized.gif" alt="Steve Ballmer on stage chanting developers, developers, developers">
+
+<div align="justify">
 
 **Developers, developers, developers!** Okay, it's just me. Same Steve Ballmer energy, zero sweat stains.
 
 I'm who you call when your backend needs to survive a traffic spike, your AI needs to stop making things up, and that spreadsheet someone updates manually every Friday needs to be put out of its misery. I build the core architecture, play marriage counselor to APIs that refuse to talk to each other, and put guardrails on LLMs so they do the heavy lifting without burning down production. Then I test everything ruthlessly, because I like sleeping through the night and so do you.
+
+</div>
 
 - 🧭 **Now:** looking for a remote role with a team anywhere in the world, full-time or contract
 - 🕐 **Based in** India (IST), with flexible overlap across time zones
