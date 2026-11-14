@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "total": 0,
   "counts": {
     "typo": 0,
@@ -9,13 +9,32 @@
     "off-by-one": 0,
     "flaky-test": 0,
     "merge-conflict": 0,
+    "timezone-bug": 0,
     "null-pointer": 0,
     "memory-leak": 0,
+    "infinite-loop": 0,
+    "regex-monster": 0,
     "race-condition": 0,
     "heisenbug": 0,
+    "deadlock": 0,
     "works-on-my-machine": 0
   },
   "hunters": {},
   "recent": [],
-  "processed": []
+  "processed": [],
+  "current": {
+    "report": {
+      "index": 0,
+      "id": "r01",
+      "since": "2026-11-14",
+      "solvers": []
+    },
+    "code": {
+      "index": 4,
+      "id": "c05",
+      "since": "2026-11-14",
+      "solvers": []
+    }
+  },
+  "tries": {}
 }
