@@ -1,0 +1,62 @@
+name: Bug Hunt
+
+on:
+  issues:
+    types: [opened]
+  schedule:
+    - cron: "23 */6 * * *" # sweep up any catch that a busy moment skipped
+  workflow_dispatch:
+
+permissions: {}
+
+# One run at a time, so two catches never overwrite each other's state.
+concurrency:
+  group: bug-hunt
+  cancel-in-progress: false
+
+jobs:
+  play:
+    # Ignore ordinary issues; the title check is done again, strictly, in Python.
+    if: github.event_name != 'issues' || startsWith(github.event.issue.title, 'bughunt')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # Untrusted issue titles are never put into this file or a shell: Python
+      # fetches them with `gh` and only matches them against a fixed pattern.
+      - name: Process catches
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 -m game.play process
+
+      - name: Save the Bugdex
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add game/state.json README.md
+          if git diff --cached --quiet; then echo "nothing to save"; exit 0; fi
+          git commit -m "bughunt: update Bugdex"
+          for attempt in 1 2 3; do
+            git push && exit 0
+            git pull --rebase
+          done
+          exit 1
+
+      - name: Reply to hunters
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 -m game.play deliver
+
+  test:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: python3 -m unittest discover -s tests -v

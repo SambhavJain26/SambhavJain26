@@ -1,0 +1,164 @@
+{
+  "rarities": {
+    "common": {
+      "label": "Common",
+      "points": 1,
+      "color": "#8a8f98",
+      "emoji": "⚪"
+    },
+    "uncommon": {
+      "label": "Uncommon",
+      "points": 2,
+      "color": "#2e9e5b",
+      "emoji": "🟢"
+    },
+    "rare": {
+      "label": "Rare",
+      "points": 5,
+      "color": "#145cff",
+      "emoji": "🔵"
+    },
+    "epic": {
+      "label": "Epic",
+      "points": 10,
+      "color": "#8b3dff",
+      "emoji": "🟣"
+    },
+    "legendary": {
+      "label": "Legendary",
+      "points": 25,
+      "color": "#e6a400",
+      "emoji": "🟡"
+    }
+  },
+  "bugs": [
+    {
+      "id": "typo",
+      "name": "Typo",
+      "rarity": "common",
+      "weight": 12,
+      "body": "#f4a259",
+      "flavor": "Lives in variable names. Feeds on commits nobody proofread."
+    },
+    {
+      "id": "missing-semicolon",
+      "name": "Missing Semicolon",
+      "rarity": "common",
+      "weight": 12,
+      "body": "#7bc96f",
+      "flavor": "Tiny, common, and somehow always reported on the wrong line."
+    },
+    {
+      "id": "trailing-whitespace",
+      "name": "Trailing Whitespace",
+      "rarity": "common",
+      "weight": 12,
+      "body": "#b9c6d6",
+      "flavor": "Harmless. Invisible. Your linter's sworn enemy."
+    },
+    {
+      "id": "unclosed-bracket",
+      "name": "Unclosed Bracket",
+      "rarity": "common",
+      "weight": 12,
+      "body": "#f6c945",
+      "flavor": "Opens things. Never closes them. Has commitment issues."
+    },
+    {
+      "id": "off-by-one",
+      "name": "Off-by-One",
+      "rarity": "uncommon",
+      "weight": 7.5,
+      "body": "#3fb3a8",
+      "flavor": "Has exactly one more leg than it should. Or one fewer."
+    },
+    {
+      "id": "flaky-test",
+      "name": "Flaky Test",
+      "rarity": "uncommon",
+      "weight": 7.5,
+      "body": "#2e9e5b",
+      "flavor": "Passes on Tuesday. Fails on Wednesday. Nobody knows why."
+    },
+    {
+      "id": "merge-conflict",
+      "name": "Merge Conflict",
+      "rarity": "uncommon",
+      "weight": 7.5,
+      "body": "#145cff",
+      "flavor": "Half yours, half theirs, completely nobody's."
+    },
+    {
+      "id": "timezone-bug",
+      "name": "Timezone Bug",
+      "rarity": "uncommon",
+      "body": "#ff8a5b",
+      "flavor": "Works perfectly, except between midnight and 5:30 AM IST.",
+      "weight": 7.5
+    },
+    {
+      "id": "null-pointer",
+      "name": "Null Pointer",
+      "rarity": "rare",
+      "weight": 3.5,
+      "body": "#62636a",
+      "flavor": "There is nothing there. That is the problem."
+    },
+    {
+      "id": "memory-leak",
+      "name": "Memory Leak",
+      "rarity": "rare",
+      "weight": 3.5,
+      "body": "#4f7fb8",
+      "flavor": "Slow, quiet, and a little bigger every day."
+    },
+    {
+      "id": "infinite-loop",
+      "name": "Infinite Loop",
+      "rarity": "rare",
+      "body": "#22b8cf",
+      "flavor": "Has been running since 2019. Still going. Still going.",
+      "weight": 3.5
+    },
+    {
+      "id": "regex-monster",
+      "name": "Regex Monster",
+      "rarity": "rare",
+      "body": "#d6336c",
+      "flavor": "Nobody wrote it. Nobody can read it. Nobody dares delete it.",
+      "weight": 3.5
+    },
+    {
+      "id": "race-condition",
+      "name": "Race Condition",
+      "rarity": "epic",
+      "weight": 2,
+      "body": "#e6243f",
+      "flavor": "Only shows up when two things happen at once. Usually in production."
+    },
+    {
+      "id": "heisenbug",
+      "name": "Heisenbug",
+      "rarity": "epic",
+      "weight": 2,
+      "body": "#8b3dff",
+      "flavor": "Vanishes the moment you attach a debugger."
+    },
+    {
+      "id": "deadlock",
+      "name": "Deadlock",
+      "rarity": "epic",
+      "body": "#0f766e",
+      "flavor": "Waiting for the other one to move first. Forever.",
+      "weight": 2
+    },
+    {
+      "id": "works-on-my-machine",
+      "name": "Works on My Machine",
+      "rarity": "legendary",
+      "weight": 2,
+      "body": "#f2b705",
+      "flavor": "The rarest bug of all. Cannot be reproduced anywhere else."
+    }
+  ]
+}

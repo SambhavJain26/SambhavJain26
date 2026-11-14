@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "total": 0,
+  "counts": {
+    "typo": 0,
+    "missing-semicolon": 0,
+    "trailing-whitespace": 0,
+    "unclosed-bracket": 0,
+    "off-by-one": 0,
+    "flaky-test": 0,
+    "merge-conflict": 0,
+    "null-pointer": 0,
+    "memory-leak": 0,
+    "race-condition": 0,
+    "heisenbug": 0,
+    "works-on-my-machine": 0
+  },
+  "hunters": {},
+  "recent": [],
+  "processed": []
+}
