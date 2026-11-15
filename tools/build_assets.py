@@ -158,7 +158,7 @@ CARDS = [
     },
     {
         "slug": "leasing",
-        "tag": "N8N DEMO · VIDEO", "accent": "blue",
+        "tag": "N8N AUTOMATION · VIDEO", "accent": "blue",
         "title": ["Inbound Lead Qualification", "& Calendar Booking Pipeline"],
         "result": "Inquiry → tour → income check → lease signing",
         "detail": "Cal.com · Plaid sandbox · DocuSign · manager approval",
@@ -166,7 +166,7 @@ CARDS = [
     },
     {
         "slug": "turnover",
-        "tag": "N8N DEMO · VIDEO", "accent": "blue",
+        "tag": "N8N AUTOMATION · VIDEO", "accent": "blue",
         "title": ["Multi-Stage Operations", "& Task Handoff Engine"],
         "result": "11-stage apartment-turnover flow",
         "detail": "Stall watchdog · error workflow · Telegram approvals",

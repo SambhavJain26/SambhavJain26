@@ -37,8 +37,8 @@ I'm who you call when your backend needs to survive a traffic spike, your AI nee
 <td width="50%"><a href="https://github.com/SambhavJain26/visa-appointment-alerts"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/cards/visa-alerts-dark.svg"><img src="assets/cards/visa-alerts-light.svg" width="100%" alt="H-1B Visa Appointment Alert Engine: helped a family member book an H-1B appointment"></picture></a></td>
 </tr>
 <tr>
-<td width="50%"><a href="https://github.com/SambhavJain26/inbound-lead-qualification-pipeline"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/cards/leasing-dark.svg"><img src="assets/cards/leasing-light.svg" width="100%" alt="Inbound Lead Qualification & Calendar Booking Pipeline (n8n demo)"></picture></a></td>
-<td width="50%"><a href="https://github.com/SambhavJain26/multistage-operations-handoff-engine"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/cards/turnover-dark.svg"><img src="assets/cards/turnover-light.svg" width="100%" alt="Multi-Stage Operations & Task Handoff Engine (n8n demo)"></picture></a></td>
+<td width="50%"><a href="https://github.com/SambhavJain26/inbound-lead-qualification-pipeline"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/cards/leasing-dark.svg"><img src="assets/cards/leasing-light.svg" width="100%" alt="Inbound Lead Qualification & Calendar Booking Pipeline (n8n automation)"></picture></a></td>
+<td width="50%"><a href="https://github.com/SambhavJain26/multistage-operations-handoff-engine"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/cards/turnover-dark.svg"><img src="assets/cards/turnover-light.svg" width="100%" alt="Multi-Stage Operations & Task Handoff Engine (n8n automation)"></picture></a></td>
 </tr>
 </table>
 
